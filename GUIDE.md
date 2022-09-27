@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-<title>munge | User Guide</title>
-<script type="module" src="https://cdn.jsdelivr.net/gh/zerodevx/zero-md@2/dist/zero-md.min.js"></script>
-<link rel="stylesheet" href="../site.css">
-<zero-md>
-<script type="text/markdown">
 # Introduction
 
 `munge.r` is a single Rebol script that provides a set of functions that enable you to get blocks of tabular (row and column) data from a variety of sources, manipulate the data in various ways, then store the result as a Rebol `block!` or save as a CSV, tab-delimited, or Excel file!
@@ -263,5 +257,3 @@ R2> head clear at tail remove/part compress "12341234123412341234" 2 -8
 R3> head clear at tail remove/part compress/gzip "12341234123412341234" 2 -8
 == #{333432363144C300}
 ```
-</script>
-</zero-md>
