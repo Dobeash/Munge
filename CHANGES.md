@@ -1,4 +1,4 @@
-# 3.1.0 - 27-Sep-2022
+# 3.1.0 - September 2022
 
 ## Removed
 
