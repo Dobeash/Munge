@@ -4,9 +4,9 @@
 
 # Getting started
 
-Download [munge.r](http://dobeash.com/files/munge.r), then from a Rebol or Red console:
+Download latest release, then from a Rebol or Red console:
 
-```plain
+```
 >> do %munge.r
 >> ctx-munge/list [1 2 3]
 == [
@@ -18,13 +18,13 @@ Download [munge.r](http://dobeash.com/files/munge.r), then from a Rebol or Red c
 
 Alternatively, you can selectively export functions to the global context:
 
-```plain
+```
 >> ctx-munge/export [list munge]
 ```
 
 Or export all functions with:
 
-```plain
+```
 >> ctx-munge/export bind words-of ctx-munge 'self
 ```
 
@@ -32,7 +32,7 @@ Or export all functions with:
 
 Rows are represented as blocks of data within a "table" block.
 
-```plain
+```
 >> load-dsv "a,1^/b,2"
 == [["a" "1"] ["b" "2"]]
 ```
@@ -43,7 +43,7 @@ Rows are represented as blocks of data within a "table" block.
 
 By default `trace` and `list` are enabled. They can be disabled with `settings/console: false`.
 
-```plain
+```
 >> load-xml %abc.xlsx
 00:00.000    0 Call load-xml
 00:00.001    0   Call unarchive on sheet1.xml
@@ -87,7 +87,7 @@ By default `trace` and `list` are enabled. They can be disabled with `settings/c
 
 By default `as-is` is enabled. It can be disabled with `settings/as-is: false`.
 
-```plain
+```
 >> load-dsv " a   b "
 == [
     ["a   b"]
@@ -101,11 +101,33 @@ By default `as-is` is enabled. It can be disabled with `settings/as-is: false`.
 
 Leading and trailing whitespace is always trimmed, but `as-is` preserves embedded whitespace.
 
+## NULL handling
+
+By default `denull` is enabled. It can be disabled with `settings/denull: false`.
+
+```
+>> load-dsv "1,NULL,2"
+== [
+    ["1" "" "2"]
+]
+```
+
+## Field Scan
+
+By default `field-scan` is disabled. It can be enabled with `settings/field-scan: true`.
+
+```
+>> fields? "Report 99^/A,B^/1,2"
+== ["Report 99"]
+>> settings/field-scan: true
+== ["A" "B"]
+```
+
 # Reading files
 
 ## Delimiter Seperated Values (DSV)
 
-```plain
+```
 >> load-dsv %file.csv
 >> load-dsv/part %file.csv 1
 >> load-dsv/part %file.csv [1 2]
@@ -114,7 +136,7 @@ Leading and trailing whitespace is always trimmed, but `as-is` preserves embedde
 
 ## Excel
 
-```plain
+```
 >> load-xml %file.xlsx
 >> load-xml/sheet %file.xlsx 'Sheet1
 >> load-xml/part %file.xlsx [1 2]
@@ -123,7 +145,7 @@ Leading and trailing whitespace is always trimmed, but `as-is` preserves embedde
 
 `load-xml` can return different results from `oledb`. Here is some code to check for differences:
 
-```plain
+```
 >> a: oledb file "SELECT * FROM Sheet1"
 >> b: load-xml file
 >> repeat i length? a [all [a/:i <> b/:i print [i difference form a/:i form b/:i] halt]]
@@ -142,14 +164,14 @@ Note that `to-string-date` and `to-string-time` handle Excel raw date and time f
 
 ## DSV
 
-```plain
+```
 >> write-dsv %file.csv block
 >> write-dsv %file.txt block
 ```
 
 ## Excel
 
-```plain
+```
 >> write-excel %file.xlsx ["Sheet1" [[a b][1 2]] [5 10]]
 >> write-excel/filter %file.xlsx ["Sheet1" [[a b][1 2]] [5 10]]
 ```
@@ -158,18 +180,18 @@ Note that `to-string-date` and `to-string-time` handle Excel raw date and time f
 
 ## OLEDB
 
-```plain
+```
 >> oledb %file.xlsx "SELECT * FROM Sheet1"
 >> oledb %file.xlsx "SELECT * FROM Sheet2"
 >> oledb %file.xlsx "SELECT F1, F2 FROM Sheet1"
 >> oledb %file.xlsx "SELECT * FROM Sheet1 WHERE F1 = '1'"
 ```
 
-This only works on Windows and requires the [Microsoft Access Database Engine 2010 Redistributable](https://www.microsoft.com/en-au/download/details.aspx?id=13255) to first be installed.
+This only works on Windows and requires the [Microsoft Access Database Engine 2016 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=54920) to first be installed.
 
 ## SQL Server
 
-```plain
+```
 >> sqlcmd sn db "SELECT * FROM TABLE"
 >> sqlcmd/headings sn db "SELECT * FROM TABLE"
 ```
@@ -178,9 +200,8 @@ This will only work on Windows and requires the SQLCMD utility to be installed.
 
 ## SQLite
 
-```plain
+```
 >> sqlite %file.db "SELECT * FROM TABLE"
->> sqlite/headings %file.db "SELECT * FROM TABLE"
 ```
 
 This requires [sqlite](http://sqlite.org/download.html) to be in the same folder as `munge.r`.
@@ -193,7 +214,7 @@ The main function, `munge`, is typically used to manipulate blocks of data retri
 
 The `/where` refinement (implied when using `/delete`) lets you specify a block of Rebol conditions (wrapped within an `all` block) that can reference row values as `row/1`, `row/2`, etc).
 
-```plain
+```
 >> munge/where data [row/1 = 1]
 >> munge/delete data [row/1 > 1 row/1 < 10]
 >> munge/where data [row/1: row/1 + 1]  ; this is an example of an "Update"
@@ -201,7 +222,7 @@ The `/where` refinement (implied when using `/delete`) lets you specify a block 
 
 Alternatively, if the data is sorted a key value may be specified. The key value does not need to be unique, but it must be the first value of each row retrieved.
 
-```plain
+```
 >> sort data
 >> munge/where data 1
 >> munge/delete data 1
@@ -213,13 +234,13 @@ This initiates a [binary search](https://en.wikipedia.org/wiki/Binary_search_alg
 
 The `/part` refinement allows you to retrieve columns by `integer!` position. The same column can be repeated.
 
-```plain
+```
 >> munge/part blk [1 2 1]
 ```
 
 A `string!` position will return that string.
 
-```plain
+```
 >> munge/part [["a"] ["b"]] [1 "Yes"]
 == [["a" "Yes"] ["b" "Yes"]]
 ```
@@ -228,14 +249,14 @@ A `string!` position will return that string.
 
 If the first row of data are column headings then `load-dsv` and `munge` may reference by `&` prefixed field name (sans whitespace).
 
-```plain
+```
 >> blk: [["First Name" "Age"] ["Ben" "25"] ["Bob" "35"]]
 >> munge/part/where blk '&FirstName [&Age = 25]
 ```
 
 If you need to exclude the first row from processing then you can use `next`.
 
-```plain
+```
 >> munge/where next blk [&Age: to-integer &Age]  ; skip "Age" value
 >> blk
 >> [["First Name" "Age"] ["Ben" 25] ["Bob" 35]]
@@ -247,7 +268,7 @@ If you need to exclude the first row from processing then you can use `next`.
 
 At present Red's implementation of `compress` is not compatable with Rebol so `archive` and `write-excel` will not work. The issue is demonstrated below:
 
-```plain
+```
 Red> compress/deflate "12341234123412341234"
 == #{3334323641C700}
 
