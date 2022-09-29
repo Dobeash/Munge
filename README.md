@@ -80,7 +80,9 @@ Its functions are wrapped in a single context named `ctx-munge`.
 	    ["Rob" 40]
 	]
 
-## Further Information
+## Documentation
+
+> Updated 27-Sep-2022
 
 - **FUNCTIONS.md** lists all available functions in the munge script.
 - **GUIDE.md** describes the use of major functions in the munge script.
