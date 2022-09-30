@@ -1,4 +1,6 @@
-### archive
+# Function Guide
+
+## archive
 
 ```
 USAGE:
@@ -12,7 +14,7 @@ ARGUMENTS:
 	source        [series!]
 ```
 
-### as-date
+## as-date
 
 ```
 USAGE:
@@ -29,7 +31,7 @@ REFINEMENTS:
 	/mdy          Month/Day/Year format
 ```
 
-### as-time
+## as-time
 
 ```
 USAGE:
@@ -43,7 +45,7 @@ ARGUMENTS:
 	time          [string!]
 ```
 
-### call-out
+## call-out
 
 ```
 USAGE:
@@ -57,7 +59,7 @@ ARGUMENTS:
 	cmd           [string!]
 ```
 
-### check
+## check
 
 ```
 USAGE:
@@ -75,7 +77,7 @@ REFINEMENTS:
 	 messages     [integer!] Limit messages to display.
 ```
 
-### cols?
+## cols?
 
 ```
 USAGE:
@@ -95,7 +97,7 @@ REFINEMENTS:
 	 number       [integer!]
 ```
 
-### deduplicate
+## deduplicate
 
 ```
 USAGE:
@@ -113,7 +115,7 @@ REFINEMENTS:
 	/latest       Remove latest occurrences of duplicate key field
 ```
 
-### deflate
+## deflate
 
 ```
 USAGE:
@@ -127,7 +129,7 @@ ARGUMENTS:
 	data          [binary!]
 ```
 
-### delimiter?
+## delimiter?
 
 ```
 USAGE:
@@ -141,7 +143,7 @@ ARGUMENTS:
 	data          [file! url! string!]
 ```
 
-### delta
+## delta
 
 ```
 USAGE:
@@ -156,7 +158,7 @@ ARGUMENTS:
 	target        [block!]
 ```
 
-### dezero
+## dezero
 
 ```
 USAGE:
@@ -170,7 +172,7 @@ ARGUMENTS:
 	string        [string!]
 ```
 
-### difference-only
+## difference-only
 
 ```
 USAGE:
@@ -185,7 +187,7 @@ ARGUMENTS:
 	table2        [block!]
 ```
 
-### digits?
+## digits?
 
 ```
 USAGE:
@@ -199,7 +201,7 @@ ARGUMENTS:
 	data          [string! binary!]
 ```
 
-### discard
+## discard
 
 ```
 USAGE:
@@ -216,7 +218,7 @@ REFINEMENTS:
 	/verbose
 ```
 
-### distinct
+## distinct
 
 ```
 USAGE:
@@ -230,7 +232,7 @@ ARGUMENTS:
 	data          [block!]
 ```
 
-### enblock
+## enblock
 
 ```
 USAGE:
@@ -245,7 +247,7 @@ ARGUMENTS:
 	cols          [integer!]
 ```
 
-### enzero
+## enzero
 
 ```
 USAGE:
@@ -260,7 +262,7 @@ ARGUMENTS:
 	length        [integer!]
 ```
 
-### excel?
+## excel?
 
 ```
 USAGE:
@@ -274,7 +276,7 @@ ARGUMENTS:
 	data          [file! url! binary! string!]
 ```
 
-### export
+## export
 
 ```
 USAGE:
@@ -288,7 +290,7 @@ ARGUMENTS:
 	words         [block!]   Words to export.
 ```
 
-### fields?
+## fields?
 
 ```
 USAGE:
@@ -308,7 +310,7 @@ REFINEMENTS:
 	 number       [integer!]
 ```
 
-### first-line
+## first-line
 
 ```
 USAGE:
@@ -322,7 +324,7 @@ ARGUMENTS:
 	data          [file! url! string! binary!]
 ```
 
-### flatten
+## flatten
 
 ```
 USAGE:
@@ -336,7 +338,7 @@ ARGUMENTS:
 	data          [block!]
 ```
 
-### intersect-only
+## intersect-only
 
 ```
 USAGE:
@@ -351,7 +353,7 @@ ARGUMENTS:
 	table2        [block!]
 ```
 
-### last-line
+## last-line
 
 ```
 USAGE:
@@ -365,7 +367,7 @@ ARGUMENTS:
 	data          [file! url! string!]
 ```
 
-### latin1-to-utf8
+## latin1-to-utf8
 
 ```
 USAGE:
@@ -379,7 +381,7 @@ ARGUMENTS:
 	data          [binary!]
 ```
 
-### letters?
+## letters?
 
 ```
 USAGE:
@@ -393,7 +395,7 @@ ARGUMENTS:
 	data          [string! binary!]
 ```
 
-### like
+## like
 
 ```
 USAGE:
@@ -408,7 +410,7 @@ ARGUMENTS:
 	value         [any-string!] Value to find.
 ```
 
-### list
+## list
 
 ```
 USAGE:
@@ -422,7 +424,7 @@ ARGUMENTS:
 	data          [block!]
 ```
 
-### load-basic
+## load-basic
 
 ```
 USAGE:
@@ -439,7 +441,7 @@ REFINEMENTS:
 	/flat         Flatten rows
 ```
 
-### load-dsv
+## load-dsv
 
 ```
 USAGE:
@@ -464,7 +466,7 @@ REFINEMENTS:
 	/flat         Flatten rows
 ```
 
-### load-fixed
+## load-fixed
 
 ```
 USAGE:
@@ -484,7 +486,7 @@ REFINEMENTS:
 	 columns      [integer! block!]
 ```
 
-### load-xml
+## load-xml
 
 ```
 USAGE:
@@ -507,7 +509,7 @@ REFINEMENTS:
 	/fields
 ```
 
-### max-of
+## max-of
 
 ```
 USAGE:
@@ -521,7 +523,7 @@ ARGUMENTS:
 	series        [series!]  Series to search.
 ```
 
-### merge
+## merge
 
 ```
 USAGE:
@@ -542,7 +544,7 @@ REFINEMENTS:
 	/default      Use none on inner block misses
 ```
 
-### min-of
+## min-of
 
 ```
 USAGE:
@@ -556,7 +558,7 @@ ARGUMENTS:
 	series        [series!]  Series to search.
 ```
 
-### mixedcase
+## mixedcase
 
 ```
 USAGE:
@@ -570,7 +572,7 @@ ARGUMENTS:
 	string        [string!]
 ```
 
-### munge
+## munge
 
 ```
 USAGE:
@@ -595,7 +597,7 @@ REFINEMENTS:
 	/spec         Return columns and condition with field substitutions
 ```
 
-### oledb
+## oledb
 
 ```
 USAGE:
@@ -610,7 +612,7 @@ ARGUMENTS:
 	statement     [string!]  SQL statement in the form (Excel) 'SELECT F1 FROM SHEET1' or (Access) 'SELECT Column FROM Table'.
 ```
 
-### penult
+## penult
 
 ```
 USAGE:
@@ -624,7 +626,7 @@ ARGUMENTS:
 	string        [series!]
 ```
 
-### read-string
+## read-string
 
 ```
 USAGE:
@@ -638,7 +640,7 @@ ARGUMENTS:
 	source        [file! url! binary!]
 ```
 
-### replace-deep
+## replace-deep
 
 ```
 USAGE:
@@ -653,7 +655,7 @@ ARGUMENTS:
 	map           [map! block!] Map of values to replace.
 ```
 
-### rows?
+## rows?
 
 ```
 USAGE:
@@ -671,7 +673,7 @@ REFINEMENTS:
 	 number       [integer!]
 ```
 
-### second-last
+## second-last
 
 ```
 USAGE:
@@ -685,7 +687,7 @@ ARGUMENTS:
 	string        [series!]
 ```
 
-### settings
+## settings
 
 ```
 SETTINGS is an object of value:
@@ -709,7 +711,7 @@ SETTINGS is an object of value:
   field-scan      logic!     false
 ```
 
-### sheets?
+## sheets?
 
 ```
 USAGE:
@@ -723,7 +725,7 @@ ARGUMENTS:
 	file          [file! url!]
 ```
 
-### sqlcmd
+## sqlcmd
 
 ```
 USAGE:
@@ -747,7 +749,7 @@ REFINEMENTS:
 	/identity
 ```
 
-### sqlite
+## sqlite
 
 ```
 USAGE:
@@ -762,7 +764,7 @@ ARGUMENTS:
 	statement     [string!]
 ```
 
-### to-column-alpha
+## to-column-alpha
 
 ```
 USAGE:
@@ -776,7 +778,7 @@ ARGUMENTS:
 	number        [integer!] Column number between 1 and 702.
 ```
 
-### to-column-number
+## to-column-number
 
 ```
 USAGE:
@@ -790,7 +792,7 @@ ARGUMENTS:
 	alpha         [word! string! char!]
 ```
 
-### to-field-spec
+## to-field-spec
 
 ```
 USAGE:
@@ -804,7 +806,7 @@ ARGUMENTS:
 	fields        [block!]
 ```
 
-### to-string-date
+## to-string-date
 
 ```
 USAGE:
@@ -822,7 +824,7 @@ REFINEMENTS:
 	/ydm          Year/Day/Month format
 ```
 
-### to-string-time
+## to-string-time
 
 ```
 USAGE:
@@ -840,7 +842,7 @@ REFINEMENTS:
 	/precise      HH:MM:SS.mmm
 ```
 
-### unarchive
+## unarchive
 
 ```
 USAGE:
@@ -859,7 +861,7 @@ REFINEMENTS:
 	/info         File name/sizes only (size only for gzip)
 ```
 
-### union-only
+## union-only
 
 ```
 USAGE:
@@ -874,7 +876,7 @@ ARGUMENTS:
 	table2        [block!]
 ```
 
-### write-dsv
+## write-dsv
 
 ```
 USAGE:
@@ -892,7 +894,7 @@ REFINEMENTS:
 	/utf8
 ```
 
-### write-excel
+## write-excel
 
 ```
 USAGE:
