@@ -1,3 +1,32 @@
+# 3.1.1 - October 2022
+
+## Removed
+
+- Support for Atronix R3
+- archive
+- deflate
+- unarchive
+- latin1-to-utf8
+- load-basic
+- /spec from load-fixed
+
+## Added
+
+- unzip function using Rebol3/Core codecs/zip/decode
+
+## Updated
+
+- write-xml to use Rebol3/Core codecs/zip/encode
+
+## Optimized
+
+- load-fixed
+- load-xml
+
+## Fixed
+
+- read-string no longer reads 256Kb chunks
+
 # 3.1.0 - September 2022
 
 ## Removed
