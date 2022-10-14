@@ -1,913 +1,721 @@
-# Function Guide
+### as-date
 
-## archive
+	USAGE:
+	  AS-DATE string
 
-```
-USAGE:
-	ARCHIVE source
+	DESCRIPTION:
+	  Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM). 
+	  AS-DATE is a function! value.
 
-DESCRIPTION:
-	Compress block of file and data pairs.
-	ARCHIVE is a function! value.
+	ARGUMENTS:
+	  string        [string!]  
 
-ARGUMENTS:
-	source        [series!]
-```
+	REFINEMENTS:
+	  /mdy          Month/Day/Year format
 
-## as-date
+### as-time
 
-```
-USAGE:
-	AS-DATE string
+	USAGE:
+	  AS-TIME time
 
-DESCRIPTION:
-	Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
-	AS-DATE is a function! value.
+	DESCRIPTION:
+	  Convert a string time to an HH:MM string (does not handle Excel or YYYYDDMM). 
+	  AS-TIME is a function! value.
 
-ARGUMENTS:
-	string        [string!]
+	ARGUMENTS:
+	  time          [string!]  
 
-REFINEMENTS:
-	/mdy          Month/Day/Year format
-```
+### call-out
 
-## as-time
+	USAGE:
+	  CALL-OUT cmd
 
-```
-USAGE:
-	AS-TIME time
+	DESCRIPTION:
+	  Call OS command returning STDOUT. 
+	  CALL-OUT is a function! value.
 
-DESCRIPTION:
-	Convert a string time to an HH:MM string (does not handle Excel or YYYYDDMM).
-	AS-TIME is a function! value.
+	ARGUMENTS:
+	  cmd           [string!]  
 
-ARGUMENTS:
-	time          [string!]
-```
+### check
 
-## call-out
+	USAGE:
+	  CHECK data
 
-```
-USAGE:
-	CALL-OUT cmd
+	DESCRIPTION:
+	  Verify data structure. 
+	  CHECK is a function! value.
 
-DESCRIPTION:
-	Call OS command returning STDOUT.
-	CALL-OUT is a function! value.
+	ARGUMENTS:
+	  data          [block!]   
 
-ARGUMENTS:
-	cmd           [string!]
-```
+	REFINEMENTS:
+	  /limit        
+	    messages     [integer!] Limit messages to display.
 
-## check
+### cols?
 
-```
-USAGE:
-	CHECK data
+	USAGE:
+	  COLS? data
 
-DESCRIPTION:
-	Verify data structure.
-	CHECK is a function! value.
+	DESCRIPTION:
+	  Number of columns in a delimited file or string. 
+	  COLS? is a function! value.
 
-ARGUMENTS:
-	data          [block!]
+	ARGUMENTS:
+	  data          [file! url! binary! string!] 
 
-REFINEMENTS:
-	/limit
-	 messages     [integer!] Limit messages to display.
-```
+	REFINEMENTS:
+	  /with         
+	    delimiter    [char!] 
+	  /sheet        
+	    number       [integer!] 
 
-## cols?
+### deduplicate
 
-```
-USAGE:
-	COLS? data
+	USAGE:
+	  DEDUPLICATE blk key
 
-DESCRIPTION:
-	Number of columns in a delimited file or string.
-	COLS? is a function! value.
+	DESCRIPTION:
+	  Remove earliest occurrences of duplicate non-empty key field. 
+	  DEDUPLICATE is a function! value.
 
-ARGUMENTS:
-	data          [file! url! binary! string!]
+	ARGUMENTS:
+	  blk           [block!]   
+	  key           [word! integer!] 
 
-REFINEMENTS:
-	/with
-	 delimiter    [char!]
-	/sheet
-	 number       [integer!]
-```
+	REFINEMENTS:
+	  /latest       Remove latest occurrences of duplicate key field
 
-## deduplicate
+### delimiter?
 
-```
-USAGE:
-	DEDUPLICATE blk key
+	USAGE:
+	  DELIMITER? data
 
-DESCRIPTION:
-	Remove earliest occurrences of duplicate non-empty key field.
-	DEDUPLICATE is a function! value.
+	DESCRIPTION:
+	  Probable delimiter, with priority given to comma, tab, bar, tilde, then semi-colon. 
+	  DELIMITER? is a function! value.
 
-ARGUMENTS:
-	blk           [block!]
-	key           [word! integer!]
+	ARGUMENTS:
+	  data          [file! url! string!] 
 
-REFINEMENTS:
-	/latest       Remove latest occurrences of duplicate key field
-```
+### delta
 
-## deflate
+	USAGE:
+	  DELTA source target
 
-```
-USAGE:
-	DEFLATE data
+	DESCRIPTION:
+	  Remove source rows that exist in target. 
+	  DELTA is a function! value.
 
-DESCRIPTION:
-	Decompresses a gzip encoding.
-	DEFLATE is a function! value.
+	ARGUMENTS:
+	  source        [block!]   
+	  target        [block!]   
 
-ARGUMENTS:
-	data          [binary!]
-```
+### dezero
 
-## delimiter?
+	USAGE:
+	  DEZERO string
 
-```
-USAGE:
-	DELIMITER? data
+	DESCRIPTION:
+	  Remove leading zeroes from string. 
+	  DEZERO is a function! value.
 
-DESCRIPTION:
-	Probable delimiter, with priority given to comma, tab, bar, tilde, then semi-colon.
-	DELIMITER? is a function! value.
+	ARGUMENTS:
+	  string        [string!]  
 
-ARGUMENTS:
-	data          [file! url! string!]
-```
+### difference-only
 
-## delta
+	USAGE:
+	  DIFFERENCE-ONLY table1 table2
 
-```
-USAGE:
-	DELTA source target
+	DESCRIPTION:
+	  Returns the difference of two tables. 
+	  DIFFERENCE-ONLY is a function! value.
 
-DESCRIPTION:
-	Remove source rows that exist in target.
-	DELTA is a function! value.
+	ARGUMENTS:
+	  table1        [block!]   
+	  table2        [block!]   
 
-ARGUMENTS:
-	source        [block!]
-	target        [block!]
-```
+### digits?
 
-## dezero
+	USAGE:
+	  DIGITS? data
 
-```
-USAGE:
-	DEZERO string
+	DESCRIPTION:
+	  Returns TRUE if data not empty and only contains digits. 
+	  DIGITS? is a function! value.
 
-DESCRIPTION:
-	Remove leading zeroes from string.
-	DEZERO is a function! value.
+	ARGUMENTS:
+	  data          [string! binary!] 
 
-ARGUMENTS:
-	string        [string!]
-```
+### discard
 
-## difference-only
+	USAGE:
+	  DISCARD data
 
-```
-USAGE:
-	DIFFERENCE-ONLY table1 table2
+	DESCRIPTION:
+	  Remove empty columns. 
+	  DISCARD is a function! value.
 
-DESCRIPTION:
-	Returns the difference of two tables.
-	DIFFERENCE-ONLY is a function! value.
+	ARGUMENTS:
+	  data          [block!]   
 
-ARGUMENTS:
-	table1        [block!]
-	table2        [block!]
-```
+	REFINEMENTS:
+	  /verbose      
 
-## digits?
+### distinct
 
-```
-USAGE:
-	DIGITS? data
+	USAGE:
+	  DISTINCT data
 
-DESCRIPTION:
-	Returns TRUE if data not empty and only contains digits.
-	DIGITS? is a function! value.
+	DESCRIPTION:
+	  Remove duplicate and empty rows. 
+	  DISTINCT is a function! value.
 
-ARGUMENTS:
-	data          [string! binary!]
-```
+	ARGUMENTS:
+	  data          [block!]   
 
-## discard
+### enblock
 
-```
-USAGE:
-	DISCARD data
+	USAGE:
+	  ENBLOCK data cols
 
-DESCRIPTION:
-	Remove empty columns.
-	DISCARD is a function! value.
+	DESCRIPTION:
+	  Convert a block of values to a block of row blocks. 
+	  ENBLOCK is a function! value.
 
-ARGUMENTS:
-	data          [block!]
+	ARGUMENTS:
+	  data          [block!]   
+	  cols          [integer!] 
 
-REFINEMENTS:
-	/verbose
-```
+### enzero
 
-## distinct
+	USAGE:
+	  ENZERO string length
 
-```
-USAGE:
-	DISTINCT data
+	DESCRIPTION:
+	  Add leading zeroes to a string. 
+	  ENZERO is a function! value.
 
-DESCRIPTION:
-	Remove duplicate and empty rows.
-	DISTINCT is a function! value.
+	ARGUMENTS:
+	  string        [string!]  
+	  length        [integer!] 
 
-ARGUMENTS:
-	data          [block!]
-```
+### excel?
 
-## enblock
+	USAGE:
+	  EXCEL? data
 
-```
-USAGE:
-	ENBLOCK data cols
+	DESCRIPTION:
+	  Returns TRUE if file is Excel or worksheet is XML. 
+	  EXCEL? is a function! value.
 
-DESCRIPTION:
-	Convert a block of values to a block of row blocks.
-	ENBLOCK is a function! value.
+	ARGUMENTS:
+	  data          [file! url! binary! string!] 
 
-ARGUMENTS:
-	data          [block!]
-	cols          [integer!]
-```
+### export
 
-## enzero
+	USAGE:
+	  EXPORT words
 
-```
-USAGE:
-	ENZERO string length
+	DESCRIPTION:
+	  Export words to global context. 
+	  EXPORT is a function! value.
 
-DESCRIPTION:
-	Add leading zeroes to a string.
-	ENZERO is a function! value.
+	ARGUMENTS:
+	  words         [block!]   Words to export.
 
-ARGUMENTS:
-	string        [string!]
-	length        [integer!]
-```
+### fields?
 
-## excel?
+	USAGE:
+	  FIELDS? data
 
-```
-USAGE:
-	EXCEL? data
+	DESCRIPTION:
+	  Column names in a delimited file. 
+	  FIELDS? is a function! value.
 
-DESCRIPTION:
-	Returns TRUE if file is Excel or worksheet is XML.
-	EXCEL? is a function! value.
+	ARGUMENTS:
+	  data          [file! url! binary! string!] 
 
-ARGUMENTS:
-	data          [file! url! binary! string!]
-```
+	REFINEMENTS:
+	  /with         
+	    delimiter    [char!] 
+	  /sheet        
+	    number       [integer!] 
 
-## export
+### first-line
 
-```
-USAGE:
-	EXPORT words
+	USAGE:
+	  FIRST-LINE data
 
-DESCRIPTION:
-	Export words to global context.
-	EXPORT is a function! value.
+	DESCRIPTION:
+	  Returns the first non-empty line of a file. 
+	  FIRST-LINE is a function! value.
 
-ARGUMENTS:
-	words         [block!]   Words to export.
-```
+	ARGUMENTS:
+	  data          [file! url! string! binary!] 
 
-## fields?
+### flatten
 
-```
-USAGE:
-	FIELDS? data
+	USAGE:
+	  FLATTEN data
 
-DESCRIPTION:
-	Column names in a delimited file.
-	FIELDS? is a function! value.
+	DESCRIPTION:
+	  Flatten nested block(s). 
+	  FLATTEN is a function! value.
 
-ARGUMENTS:
-	data          [file! url! binary! string!]
+	ARGUMENTS:
+	  data          [block!]   
 
-REFINEMENTS:
-	/with
-	 delimiter    [char!]
-	/sheet
-	 number       [integer!]
-```
+### intersect-only
 
-## first-line
+	USAGE:
+	  INTERSECT-ONLY table1 table2
 
-```
-USAGE:
-	FIRST-LINE data
+	DESCRIPTION:
+	  Returns the intersection of two tables. 
+	  INTERSECT-ONLY is a function! value.
 
-DESCRIPTION:
-	Returns the first non-empty line of a file.
-	FIRST-LINE is a function! value.
+	ARGUMENTS:
+	  table1        [block!]   
+	  table2        [block!]   
 
-ARGUMENTS:
-	data          [file! url! string! binary!]
-```
+### last-line
 
-## flatten
+	USAGE:
+	  LAST-LINE data
 
-```
-USAGE:
-	FLATTEN data
+	DESCRIPTION:
+	  Returns the last non-empty line of a file. 
+	  LAST-LINE is a function! value.
 
-DESCRIPTION:
-	Flatten nested block(s).
-	FLATTEN is a function! value.
+	ARGUMENTS:
+	  data          [file! url! string!] 
 
-ARGUMENTS:
-	data          [block!]
-```
+### letters?
 
-## intersect-only
+	USAGE:
+	  LETTERS? data
 
-```
-USAGE:
-	INTERSECT-ONLY table1 table2
+	DESCRIPTION:
+	  Returns TRUE if data only contains letters. 
+	  LETTERS? is a function! value.
 
-DESCRIPTION:
-	Returns the intersection of two tables.
-	INTERSECT-ONLY is a function! value.
+	ARGUMENTS:
+	  data          [string! binary!] 
 
-ARGUMENTS:
-	table1        [block!]
-	table2        [block!]
-```
+### like
 
-## last-line
+	USAGE:
+	  LIKE series value
 
-```
-USAGE:
-	LAST-LINE data
+	DESCRIPTION:
+	  Finds a value in a series, expanding * (any characters) and ? (any one character), and returns TRUE if found. 
+	  LIKE is a function! value.
 
-DESCRIPTION:
-	Returns the last non-empty line of a file.
-	LAST-LINE is a function! value.
+	ARGUMENTS:
+	  series        [any-string!] Series to search.
+	  value         [any-string!] Value to find.
 
-ARGUMENTS:
-	data          [file! url! string!]
-```
+### list
 
-## latin1-to-utf8
+	USAGE:
+	  LIST data
 
-```
-USAGE:
-	LATIN1-TO-UTF8 data
+	DESCRIPTION:
+	  Uses settings to optionally trim strings and set the new-line marker. 
+	  LIST is a function! value.
 
-DESCRIPTION:
-	Latin1 binary to UTF-8 string conversion.
-	LATIN1-TO-UTF8 is a function! value.
+	ARGUMENTS:
+	  data          [block!]   
 
-ARGUMENTS:
-	data          [binary!]
-```
+### load-dsv
 
-## letters?
+	USAGE:
+	  LOAD-DSV source
 
-```
-USAGE:
-	LETTERS? data
+	DESCRIPTION:
+	  Parses delimiter-separated values into row blocks. 
+	  LOAD-DSV is a function! value.
 
-DESCRIPTION:
-	Returns TRUE if data only contains letters.
-	LETTERS? is a function! value.
+	ARGUMENTS:
+	  source        [file! url! binary! string!] 
 
-ARGUMENTS:
-	data          [string! binary!]
-```
+	REFINEMENTS:
+	  /part         Offset position(s) to retrieve
+	    columns      [block! integer! word!] 
+	  /where        Expression that can reference columns as row/1, row/2, etc or &field
+	    condition    [block!] 
+	  /with         Alternate delimiter (default is tab, bar then comma)
+	    delimiter    [char!] 
+	  /ignore       Ignore truncated row errors
+	  /csv          Parse as CSV even though not comma-delimited
+	  /flat         Flatten rows
 
-## like
+### load-fixed
 
-```
-USAGE:
-	LIKE series value
+	USAGE:
+	  LOAD-FIXED file widths
 
-DESCRIPTION:
-	Finds a value in a series, expanding * (any characters) and ? (any one character), and returns TRUE if found.
-	LIKE is a function! value.
+	DESCRIPTION:
+	  Loads fixed-width values from a file. 
+	  LOAD-FIXED is a function! value.
 
-ARGUMENTS:
-	series        [any-string!] Series to search.
-	value         [any-string!] Value to find.
-```
+	ARGUMENTS:
+	  file          [file! url!] 
+	  widths        [block!]   
 
-## list
+	REFINEMENTS:
+	  /part         
+	    columns      [integer! block!] 
 
-```
-USAGE:
-	LIST data
+### load-xml
 
-DESCRIPTION:
-	Uses settings to optionally trim strings and set the new-line marker.
-	LIST is a function! value.
+	USAGE:
+	  LOAD-XML file
 
-ARGUMENTS:
-	data          [block!]
-```
+	DESCRIPTION:
+	  Loads an Office XML sheet. 
+	  LOAD-XML is a function! value.
 
-## load-basic
+	ARGUMENTS:
+	  file          [file!]    
 
-```
-USAGE:
-	LOAD-BASIC file
+	REFINEMENTS:
+	  /part         Offset position(s) to retrieve
+	    columns      [block! integer! word!] 
+	  /where        Expression that can reference columns as row/1, row/2, etc or &field
+	    condition    [block!] 
+	  /sheet        
+	    number       [integer!] 
+	  /fields       
 
-DESCRIPTION:
-	Parses basic delimiter-separated values into row blocks.
-	LOAD-BASIC is a function! value.
+### max-of
 
-ARGUMENTS:
-	file          [file! binary! url!]
+	USAGE:
+	  MAX-OF series
 
-REFINEMENTS:
-	/flat         Flatten rows
-```
+	DESCRIPTION:
+	  Returns the largest value in a series. 
+	  MAX-OF is a function! value.
 
-## load-dsv
+	ARGUMENTS:
+	  series        [series!]  Series to search.
 
-```
-USAGE:
-	LOAD-DSV source
+### merge
 
-DESCRIPTION:
-	Parses delimiter-separated values into row blocks.
-	LOAD-DSV is a function! value.
+	USAGE:
+	  MERGE outer key1 inner key2 columns
 
-ARGUMENTS:
-	source        [file! url! binary! string!]
+	DESCRIPTION:
+	  Join outer block to inner block on primary key. 
+	  MERGE is a function! value.
 
-REFINEMENTS:
-	/part         Offset position(s) to retrieve
-	 columns      [block! integer! word!]
-	/where        Expression that can reference columns as row/1, row/2, etc or &field
-	 condition    [block!]
-	/with         Alternate delimiter (default is tab, bar then comma)
-	 delimiter    [char!]
-	/ignore       Ignore truncated row errors
-	/csv          Parse as CSV even though not comma-delimited
-	/flat         Flatten rows
-```
+	ARGUMENTS:
+	  outer         [block!]   Outer block.
+	  key1          [integer!] 
+	  inner         [block!]   Inner block to index.
+	  key2          [integer!] 
+	  columns       [block!]   Offset position(s) to retrieve in merged block.
 
-## load-fixed
+	REFINEMENTS:
+	  /default      Use none on inner block misses
 
-```
-USAGE:
-	LOAD-FIXED file
+### min-of
 
-DESCRIPTION:
-	Loads fixed-width values from a file.
-	LOAD-FIXED is a function! value.
+	USAGE:
+	  MIN-OF series
 
-ARGUMENTS:
-	file          [file! url!]
+	DESCRIPTION:
+	  Returns the smallest value in a series. 
+	  MIN-OF is a function! value.
 
-REFINEMENTS:
-	/spec
-	 widths       [block!]
-	/part
-	 columns      [integer! block!]
-```
+	ARGUMENTS:
+	  series        [series!]  Series to search.
 
-## load-xml
+### mixedcase
 
-```
-USAGE:
-	LOAD-XML file
+	USAGE:
+	  MIXEDCASE string
 
-DESCRIPTION:
-	Loads an Office XML sheet.
-	LOAD-XML is a function! value.
+	DESCRIPTION:
+	  Converts string of characters to mixedcase. 
+	  MIXEDCASE is a function! value.
 
-ARGUMENTS:
-	file          [file!]
+	ARGUMENTS:
+	  string        [string!]  
 
-REFINEMENTS:
-	/part         Offset position(s) to retrieve
-	 columns      [block! integer! word!]
-	/where        Expression that can reference columns as row/1, row/2, etc or &field
-	 condition    [block!]
-	/sheet
-	 number       [integer!]
-	/fields
-```
+### munge
 
-## max-of
+	USAGE:
+	  MUNGE data
 
-```
-USAGE:
-	MAX-OF series
+	DESCRIPTION:
+	  Load and/or manipulate a block of tabular (column and row) values. 
+	  MUNGE is a function! value.
 
-DESCRIPTION:
-	Returns the largest value in a series.
-	MAX-OF is a function! value.
+	ARGUMENTS:
+	  data          [block!]   
 
-ARGUMENTS:
-	series        [series!]  Series to search.
-```
+	REFINEMENTS:
+	  /delete       Delete matching rows (returns original block)
+	    clause       [any-type!] 
+	  /part         Offset position(s) and/or values to retrieve
+	    columns      [block! integer! word! none!] 
+	  /where        Expression that can reference columns as row/1, row/2, etc
+	    condition    [any-type!] 
+	  /group        One of avg, count, max, min or sum
+	    having       [word! block!] Word or expression that can reference the initial result set column as count, max, etc.
+	  /spec         Return columns and condition with field substitutions
 
-## merge
+### oledb
 
-```
-USAGE:
-	MERGE outer key1 inner key2 columns
+	USAGE:
+	  OLEDB file statement
 
-DESCRIPTION:
-	Join outer block to inner block on primary key.
-	MERGE is a function! value.
+	DESCRIPTION:
+	  Execute an OLEDB statement. 
+	  OLEDB is a function! value.
 
-ARGUMENTS:
-	outer         [block!]   Outer block.
-	key1          [integer!]
-	inner         [block!]   Inner block to index.
-	key2          [integer!]
-	columns       [block!]   Offset position(s) to retrieve in merged block.
+	ARGUMENTS:
+	  file          [file! url!] 
+	  statement     [string!]  SQL statement in the form (Excel) 'SELECT F1 FROM SHEET1' or (Access) 'SELECT Column FROM Table'.
 
-REFINEMENTS:
-	/default      Use none on inner block misses
-```
+### penult
 
-## min-of
+	USAGE:
+	  PENULT series
 
-```
-USAGE:
-	MIN-OF series
+	DESCRIPTION:
+	  Returns the second last value of a series. 
+	  PENULT is a function! value.
 
-DESCRIPTION:
-	Returns the smallest value in a series.
-	MIN-OF is a function! value.
+	ARGUMENTS:
+	  series        [series!]  
 
-ARGUMENTS:
-	series        [series!]  Series to search.
-```
+### read-string
 
-## mixedcase
+	USAGE:
+	  READ-STRING source
 
-```
-USAGE:
-	MIXEDCASE string
+	DESCRIPTION:
+	  Read string from a text file. 
+	  READ-STRING is a function! value.
 
-DESCRIPTION:
-	Converts string of characters to mixedcase.
-	MIXEDCASE is a function! value.
+	ARGUMENTS:
+	  source        [file! url! binary!] 
 
-ARGUMENTS:
-	string        [string!]
-```
+### replace-deep
 
-## munge
+	USAGE:
+	  REPLACE-DEEP data map
 
-```
-USAGE:
-	MUNGE data
+	DESCRIPTION:
+	  Replaces all occurrences of search values with new values in a block or nested block. 
+	  REPLACE-DEEP is a function! value.
 
-DESCRIPTION:
-	Load and/or manipulate a block of tabular (column and row) values.
-	MUNGE is a function! value.
+	ARGUMENTS:
+	  data          [block!]   Block to replace within (modified).
+	  map           [map! block!] Map of values to replace.
 
-ARGUMENTS:
-	data          [block!]
+### rows?
 
-REFINEMENTS:
-	/delete       Delete matching rows (returns original block)
-	 clause       [any-type!]
-	/part         Offset position(s) and/or values to retrieve
-	 columns      [block! integer! word! none!]
-	/where        Expression that can reference columns as row/1, row/2, etc
-	 condition    [any-type!]
-	/group        One of avg, count, max, min or sum
-	 having       [word! block!] Word or expression that can reference the initial result set column as count, max, etc.
-	/spec         Return columns and condition with field substitutions
-```
+	USAGE:
+	  ROWS? data
 
-## oledb
+	DESCRIPTION:
+	  Number of rows in a delimited file or string. 
+	  ROWS? is a function! value.
 
-```
-USAGE:
-	OLEDB file statement
+	ARGUMENTS:
+	  data          [file! url! binary! string!] 
 
-DESCRIPTION:
-	Execute an OLEDB statement.
-	OLEDB is a function! value.
+	REFINEMENTS:
+	  /sheet        
+	    number       [integer!] 
 
-ARGUMENTS:
-	file          [file! url!]
-	statement     [string!]  SQL statement in the form (Excel) 'SELECT F1 FROM SHEET1' or (Access) 'SELECT Column FROM Table'.
-```
+### second-last
 
-## penult
+	USAGE:
+	  SECOND-LAST series
 
-```
-USAGE:
-	PENULT string
+	DESCRIPTION:
+	  Returns the second last value of a series. 
+	  SECOND-LAST is a function! value.
 
-DESCRIPTION:
-	Returns the second last value of a series.
-	PENULT is a function! value.
+	ARGUMENTS:
+	  series        [series!]  
 
-ARGUMENTS:
-	string        [series!]
-```
+### sheets?
 
-## read-string
+	USAGE:
+	  SHEETS? file
 
-```
-USAGE:
-	READ-STRING source
+	DESCRIPTION:
+	  Excel sheet names. 
+	  SHEETS? is a function! value.
 
-DESCRIPTION:
-	Read string from a text file.
-	READ-STRING is a function! value.
+	ARGUMENTS:
+	  file          [file! url!] 
 
-ARGUMENTS:
-	source        [file! url! binary!]
-```
+### sqlcmd
 
-## replace-deep
+	USAGE:
+	  SQLCMD server database statement
 
-```
-USAGE:
-	REPLACE-DEEP data map
+	DESCRIPTION:
+	  Execute a SQL Server statement. 
+	  SQLCMD is a function! value.
 
-DESCRIPTION:
-	Replaces all occurrences of search values with new values in a block or nested block.
-	REPLACE-DEEP is a function! value.
+	ARGUMENTS:
+	  server        [string!]  
+	  database      [string!]  
+	  statement     [string!]  
 
-ARGUMENTS:
-	data          [block!]   Block to replace within (modified).
-	map           [map! block!] Map of values to replace.
-```
+	REFINEMENTS:
+	  /key          Columns to convert to integer
+	    columns      [integer! block!] 
+	  /headings     Keep column headings
+	  /string       Return string instead of block
+	  /flat         Flatten rows
+	  /identity     
 
-## rows?
+### sqlite
 
-```
-USAGE:
-	ROWS? data
+	USAGE:
+	  SQLITE database statement
 
-DESCRIPTION:
-	Number of rows in a delimited file or string.
-	ROWS? is a function! value.
+	DESCRIPTION:
+	  Execute a SQLite statement. 
+	  SQLITE is a function! value.
 
-ARGUMENTS:
-	data          [file! url! binary! string!]
+	ARGUMENTS:
+	  database      [file! url!] 
+	  statement     [string!]  
 
-REFINEMENTS:
-	/sheet
-	 number       [integer!]
-```
+### to-column-alpha
 
-## second-last
+	USAGE:
+	  TO-COLUMN-ALPHA number
 
-```
-USAGE:
-	SECOND-LAST string
+	DESCRIPTION:
+	  Convert numeric column reference to an alpha column reference. 
+	  TO-COLUMN-ALPHA is a function! value.
 
-DESCRIPTION:
-	Returns the second last value of a series.
-	SECOND-LAST is a function! value.
+	ARGUMENTS:
+	  number        [integer!] Column number between 1 and 702.
 
-ARGUMENTS:
-	string        [series!]
-```
+### to-column-number
 
-## settings
+	USAGE:
+	  TO-COLUMN-NUMBER alpha
 
-```
-SETTINGS is an object of value:
-  version         tuple!     3.1.0
-  build           word!      r3
-  windows?        logic!     true
-  x64?            logic!     true
-  zip?            none!      none
-  read-binary     block!     length: 1 [read]
-  read-binary-part block!     length: 1 [read/part]
-  stack           block!     length: 0 []
-  start-time      none!      none
-  start-used      none!      none
-  called          function!  [name [word! none!] /file path [file! url! binary!] /local message s]
-  exited          function!  [/local]
-  error           function!  [message [string!] /local]
-  as-is           logic!     true
-  console         logic!     true
-  denull          logic!     true
-  trace           logic!     true
-  field-scan      logic!     false
-```
+	DESCRIPTION:
+	  Convert alpha column reference to a numeric column reference. 
+	  TO-COLUMN-NUMBER is a function! value.
 
-## sheets?
+	ARGUMENTS:
+	  alpha         [word! string! char!] 
 
-```
-USAGE:
-	SHEETS? file
+### to-field-spec
 
-DESCRIPTION:
-	Excel sheet names.
-	SHEETS? is a function! value.
+	USAGE:
+	  TO-FIELD-SPEC fields
 
-ARGUMENTS:
-	file          [file! url!]
-```
+	DESCRIPTION:
+	  Convert field strings to words. 
+	  TO-FIELD-SPEC is a function! value.
 
-## sqlcmd
+	ARGUMENTS:
+	  fields        [block!]   
 
-```
-USAGE:
-	SQLCMD server database statement
+### to-string-date
 
-DESCRIPTION:
-	Execute a SQL Server statement.
-	SQLCMD is a function! value.
+	USAGE:
+	  TO-STRING-DATE date
 
-ARGUMENTS:
-	server        [string!]
-	database      [string!]
-	statement     [string!]
+	DESCRIPTION:
+	  Convert a string or Rebol date to a YYYY-MM-DD string. 
+	  TO-STRING-DATE is a function! value.
 
-REFINEMENTS:
-	/key          Columns to convert to integer
-	 columns      [integer! block!]
-	/headings     Keep column headings
-	/string       Return string instead of block
-	/flat         Flatten rows
-	/identity
-```
+	ARGUMENTS:
+	  date          [string! date!] 
 
-## sqlite
+	REFINEMENTS:
+	  /mdy          Month/Day/Year format
+	  /ydm          Year/Day/Month format
 
-```
-USAGE:
-	SQLITE database statement
+### to-string-time
 
-DESCRIPTION:
-	Execute a SQLite statement.
-	SQLITE is a function! value.
+	USAGE:
+	  TO-STRING-TIME time
 
-ARGUMENTS:
-	database      [file! url!]
-	statement     [string!]
-```
+	DESCRIPTION:
+	  Convert a string or Rebol time to a HH:MM:SS string. 
+	  TO-STRING-TIME is a function! value.
 
-## to-column-alpha
+	ARGUMENTS:
+	  time          [string! date! time!] 
 
-```
-USAGE:
-	TO-COLUMN-ALPHA number
+	REFINEMENTS:
+	  /minutes      HH:MM
+	  /precise      HH:MM:SS.mmm
 
-DESCRIPTION:
-	Convert numeric column reference to an alpha column reference.
-	TO-COLUMN-ALPHA is a function! value.
+### union-only
 
-ARGUMENTS:
-	number        [integer!] Column number between 1 and 702.
-```
+	USAGE:
+	  UNION-ONLY table1 table2
 
-## to-column-number
+	DESCRIPTION:
+	  Returns the union of two tables. 
+	  UNION-ONLY is a function! value.
 
-```
-USAGE:
-	TO-COLUMN-NUMBER alpha
+	ARGUMENTS:
+	  table1        [block!]   
+	  table2        [block!]   
 
-DESCRIPTION:
-	Convert alpha column reference to a numeric column reference.
-	TO-COLUMN-NUMBER is a function! value.
+### unzip
 
-ARGUMENTS:
-	alpha         [word! string! char!]
-```
+	USAGE:
+	  UNZIP source file
 
-## to-field-spec
+	DESCRIPTION:
+	  Decompresses file from archive. 
+	  UNZIP is a function! value.
 
-```
-USAGE:
-	TO-FIELD-SPEC fields
+	ARGUMENTS:
+	  source        [file! url! binary!] 
+	  file          [file!]    
 
-DESCRIPTION:
-	Convert field strings to words.
-	TO-FIELD-SPEC is a function! value.
+### write-dsv
 
-ARGUMENTS:
-	fields        [block!]
-```
+	USAGE:
+	  WRITE-DSV file data
 
-## to-string-date
+	DESCRIPTION:
+	  Write block(s) of values to a delimited text file. 
+	  WRITE-DSV is a function! value.
 
-```
-USAGE:
-	TO-STRING-DATE date
+	ARGUMENTS:
+	  file          [file! url!] Csv or tab-delimited text file.
+	  data          [block!]   
 
-DESCRIPTION:
-	Convert a string or Rebol date to a YYYY-MM-DD string.
-	TO-STRING-DATE is a function! value.
+	REFINEMENTS:
+	  /utf8         
 
-ARGUMENTS:
-	date          [string! date!]
+### write-excel
 
-REFINEMENTS:
-	/mdy          Month/Day/Year format
-	/ydm          Year/Day/Month format
-```
+	USAGE:
+	  WRITE-EXCEL file data
 
-## to-string-time
+	DESCRIPTION:
+	  Write block(s) of values to an Excel file. 
+	  WRITE-EXCEL is a function! value.
 
-```
-USAGE:
-	TO-STRING-TIME time
+	ARGUMENTS:
+	  file          [file! url!] 
+	  data          [block!]   Name [string!] Data [block!] Widths [block!] records.
 
-DESCRIPTION:
-	Convert a string or Rebol time to a HH:MM:SS string.
-	TO-STRING-TIME is a function! value.
-
-ARGUMENTS:
-	time          [string! date! time!]
-
-REFINEMENTS:
-	/minutes      HH:MM
-	/precise      HH:MM:SS.mmm
-```
-
-## unarchive
-
-```
-USAGE:
-	UNARCHIVE source
-
-DESCRIPTION:
-	Decompresses archive (only works with compression methods 'store and 'deflate).
-	UNARCHIVE is a function! value.
-
-ARGUMENTS:
-	source        [file! url! binary!]
-
-REFINEMENTS:
-	/only
-	 file         [file!]
-	/info         File name/sizes only (size only for gzip)
-```
-
-## union-only
-
-```
-USAGE:
-	UNION-ONLY table1 table2
-
-DESCRIPTION:
-	Returns the union of two tables.
-	UNION-ONLY is a function! value.
-
-ARGUMENTS:
-	table1        [block!]
-	table2        [block!]
-```
-
-## write-dsv
-
-```
-USAGE:
-	WRITE-DSV file data
-
-DESCRIPTION:
-	Write block(s) of values to a delimited text file.
-	WRITE-DSV is a function! value.
-
-ARGUMENTS:
-	file          [file! url!] Csv or tab-delimited text file.
-	data          [block!]
-
-REFINEMENTS:
-	/utf8
-```
-
-## write-excel
-
-```
-USAGE:
-	WRITE-EXCEL file data
-
-DESCRIPTION:
-	Write block(s) of values to an Excel file.
-	WRITE-EXCEL is a function! value.
-
-ARGUMENTS:
-	file          [file! url!]
-	data          [block!]   Name [string!] Data [block!] Widths [block!] records.
-
-REFINEMENTS:
-	/filter       Add auto filter
-```
+	REFINEMENTS:
+	  /filter       Add auto filter
