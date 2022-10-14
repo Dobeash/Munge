@@ -1,16 +1,14 @@
-# Munge v3.1.0
+# Munge v3.1.1
 
-> Updated 27-Sep-2022
+> Updated 14-Oct-2022
 
 Munge is a collection of data manipulation functions designed to work with the following three Rebol distributions:
 
 - [Oldes/Rebol3](https://github.com/Oldes/Rebol3)
 - [Red](https://www.red-lang.org)
-- [Atronix R3](https://www.atronixengineering.com)
 
 Its functions are wrapped in a single context named `ctx-munge`.
 
-	archive			Compress block of file and data pairs.
 	as-date			Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
 	as-time			Convert a string time to a HH:MM string (does not handle Excel).
 	call-out		Call OS command returning STDOUT.
@@ -33,11 +31,9 @@ Its functions are wrapped in a single context named `ctx-munge`.
 	flatten			Flatten nested block(s).
 	intersect-only		Returns the intersection of two tables.
 	last-line		Returns the last non-empty line of a file.
-	latin1-to-utf8		Latin1 binary to UTF-8 string conversion.
 	letters?		Returns TRUE if data only contains letters.
 	like			Finds a value in a series, expanding * (any characters) and ? (any one character), and returns TRUE if found.
 	list			Uses settings to optionally trim strings and set the new-line marker.
-	load-basic		Parses basic delimiter-separated values into row blocks.
 	load-dsv		Parses delimiter-separated values into row blocks.
 	load-fixed		Loads fixed-width values from a file.
 	load-xml		Loads an Office XML sheet.
@@ -59,10 +55,10 @@ Its functions are wrapped in a single context named `ctx-munge`.
 	to-field-spec		Convert field strings to words.
 	to-string-date		Convert a string or Rebol date to a YYYY-MM-DD string.
 	to-string-time		Convert a string or Rebol time to a HH:MM:SS string.
-	unarchive		Decompresses archive (only works with compression methods 'store and 'deflate).
 	union-only		Returns the union of two tables.
+	unzip			Decompresses file from archive.
 	write-dsv		Write block(s) of values to a delimited text file.
-	write-excel		Write block(s) of values to an Excel file.  
+	write-excel		Write block(s) of values to an Excel file.
 
 ## Quick Start
 
@@ -84,7 +80,7 @@ Its functions are wrapped in a single context named `ctx-munge`.
 
 ## Documentation
 
-> Updated 27-Sep-2022
+> Updated 14-Oct-2022
 
 - [Function Guide](FUNCTIONS.md) - Lists all available functions in the munge script.
 - [User Guide](GUIDE.md) - Describes the use of major functions in the munge script.
