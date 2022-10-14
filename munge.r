@@ -2,21 +2,19 @@
 Rebol [
 	Title:		"Munge functions"
 	Owner:		"Ashley G Truter"
-	Version:	3.1.0
-	Date:		27-Sep-2022
+	Version:	3.1.1
+	Date:		14-Oct-2022
 	Purpose:	"Extract and manipulate tabular values in blocks, delimited files, and database tables."
 	Licence:	"MIT. Free for both commercial and non-commercial use."
 	Tested: {
 		Windows x86
-			CLI Red			26-Sep-2022		red-lang.org
+			CLI Red			14-Oct-2022		red-lang.org
 		Windows x64
-			Rebol3/Base		3.10.0			github.com/Oldes/Rebol3
-			REBOL3/View		3.0.99			atronixengineering.com
+			Rebol3/Core		3.10.0			github.com/Oldes/Rebol3
 		macOS x64
-			Rebol3/Base		3.10.0			github.com/Oldes/Rebol3
+			Rebol3/Core		3.10.0			github.com/Oldes/Rebol3
 	}
 	Usage: {
-		archive				Compress block of file and data pairs.
 		as-date				Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
 		as-time				Convert a string time to a HH:MM string (does not handle Excel).
 		call-out			Call OS command returning STDOUT.
@@ -40,12 +38,10 @@ Rebol [
 		flatten				Flatten nested block(s).
 		intersect-only		Returns the intersection of two tables.
 		last-line			Returns the last non-empty line of a file.
-		latin1-to-utf8		Latin1 binary to UTF-8 string conversion.
 		letter				LETTER is a bitset! value: make bitset! #{00000000000000007FFFFFE07FFFFFE0}
 		letters?			Returns TRUE if data only contains letters.
 		like				Finds a value in a series, expanding * (any characters) and ? (any one character), and returns TRUE if found.
 		list				Uses settings to optionally trim strings and set the new-line marker.
-		load-basic			Parses basic delimiter-separated values into row blocks.
 		load-dsv			Parses delimiter-separated values into row blocks.
 		load-fixed			Loads fixed-width values from a file.
 		load-xml			Loads an Office XML sheet.
@@ -67,8 +63,8 @@ Rebol [
 		to-field-spec		Convert field strings to words.
 		to-string-date		Convert a string or Rebol date to a YYYY-MM-DD string.
 		to-string-time		Convert a string or Rebol time to a HH:MM:SS string.
-		unarchive			Decompresses archive (only works with compression methods 'store and 'deflate).
 		union-only			Returns the union of two tables.
+		unzip				Decompresses file from archive.
 		write-dsv			Write block(s) of values to a delimited text file.
 		write-excel			Write block(s) of values to an Excel file.
 	}
@@ -78,7 +74,7 @@ case [
 	;	*** Red ***
 	not rebol [
 
-		foreach word [ajoin decimal! deline invalid-utf? reform to-rebol-file] [
+		foreach word [ajoin decimal! deline reform to-rebol-file] [
 			all [value? word print [word "already defined!"]]
 		]
 
@@ -100,13 +96,6 @@ case [
 			either lines [split string lf] [string]
 		]
 
-		invalid-utf?: function [
-			"Checks UTF encoding; if correct, returns none else position of error"
-			binary [binary!]
-		] compose [
-			find binary (make bitset! [192 193 245 - 255])
-		]
-
 		reform: function [
 			"Forms a reduced block and returns a string"
 			value "Value to reduce and form"
@@ -125,36 +114,6 @@ case [
 		]
 
 		to-rebol-file: :to-red-file
-	]
-	;	*** R3 ***
-	system/product = 'atronix-view [
-
-		average: function [
-			"Returns the average of all values in a block"
-			block [block!]
-		] [
-			all [empty? block return none]
-			divide sum block length? block
-		]
-
-		put: function [
-			"Replaces the value following a key, and returns the map"
-			map [map!]
-			key
-			value
-		] [
-			append map reduce [key value]
-			value
-		]
-
-		sum: function [
-			"Returns the sum of all values in a block"
-			values [block!]
-		] [
-			result: 0
-			foreach value values [result: result + value]
-			result
-		]
 	]
 	;	*** Oldes R3 ***
 	3 = system/version/1 [
@@ -188,22 +147,13 @@ ctx-munge: context [
 
 		version: system/script/header/version
 
-		build: case [
-			not rebol						['red]
-			system/product = 'atronix-view	['r3a]
-			true							['r3]
-		]
+		build: either rebol ['r3] ['red]
 
 		;	Features
 
 		windows?:	"a\b" = to-local-file %a/b
 		x64?:		integer? 9223372036854775807
-		zip?:		attempt [codecs/zip system/options/log/zip: 0 true]
-
-		;	Compatability
-
-		read-binary:		either build = 'red [[read/binary]] [[read]]
-		read-binary-part:	either build = 'red [[read/binary/part]] [[read/part]]
+		zip?:		not none? attempt [codecs/zip system/options/log/zip: 0]
 
 		stack: copy []
 
@@ -224,6 +174,7 @@ ctx-munge: context [
 				insert/dup message: reform ["Call" either all [file not binary? path] [reform [name "on" last split-path path]] [name]] "  " length? stack
 				all [
 					empty? stack
+					recycle
 					recycle
 					settings/start-time: now/precise
 					settings/start-used: stats
@@ -251,122 +202,6 @@ ctx-munge: context [
 		as-is: console: denull: trace: true
 
 		field-scan: false
-	]
-
-	archive: function [
-		"Compress block of file and data pairs"
-		source [series!]
-	] compose/deep [
-		;	https://en.wikipedia.org/wiki/Zip_(file_format) & http://www.rebol.org/view-script.r?script=rebzip.r
-
-		to-short: function [i] [copy/part reverse to binary! i 2]
-		to-long: function [i] [copy/part reverse to binary! i 4]
-
-		case [
-			empty? source [none]
-			not block? source [(either settings/build = 'r3a [[join #{1F8B080000000000000A} at head reverse/part skip tail compress/gzip source -8 4 3]] [[compress source 'gzip]])]
-			settings/zip? [
-				all [settings/console settings/called 'zip-codec]
-				blk: make block! 32
-				foreach [file series] source [
-					all [none? series series: make string! 0]
-					any [file? file settings/error reform ["Found" type? file "where file! expected"]]
-					any [series? series settings/error reform ["Found" type? series "where series! expected"]]
-					append blk reduce [file to binary! series]
-				]
-				also codecs/zip/encode blk all [settings/console settings/exited]
-			]
-			true [
-				bin: copy #{}
-				dir: copy #{}
-
-				foreach [file series] source [
-					all [none? series series: make string! 0]
-
-					any [file? file settings/error reform ["Found" type? file "where file! expected"]]
-					any [series? series settings/error reform ["Found" type? series "where series! expected"]]
-
-					compressed-data: compress data: to binary! series (either settings/build = 'r3a [] [['zlib]])
-
-					(either settings/build = 'red [[
-						remove/part compressed-data 10
-						insert compressed-data #{789C}
-						reverse/part skip tail compressed-data -8 4
-					]] [])
-
-					method: either greater? length? series length? compressed-data [
-						compressed-data: (
-							switch settings/build [
-								r3	[[copy/part at compressed-data 3 skip tail compressed-data -4]]
-								r3a	[[copy/part at compressed-data 3 skip tail compressed-data -8]]
-								red	[[compress data 'deflate]]
-							]
-						)
-						#{0800}				; deflate
-					] [
-						compressed-data: data
-						#{0000}				; store
-					]
-
-					offset: length? bin
-
-					append bin rejoin [
-						#{504B0304}			; Local file header signature
-						#{1400}				; Version needed to extract (minimum)
-						#{0000}				; General purpose bit flag
-						method				; Compression method
-						#{0000}				; File last modification time
-						#{0000}				; File last modification date
-						crc:				to-long (either settings/build = 'r3a [[checksum/method to binary!]] [[checksum]]) data 'CRC32
-						compressed-size:	to-long length? compressed-data
-						uncompressed-size:	to-long length? data
-						filename-length:	to-short length? file
-						#{0000}				; Extra field length
-						filename: to binary! file
-						#{}					; Extra field
-						compressed-data		; Data
-					]
-
-					append dir rejoin [
-						#{504B0102}			; Central directory file header signature
-						#{1400}				; Version made by
-						#{1400}				; Version needed to extract (minimum)
-						#{0000}				; General purpose bit flag
-						method				; Compression method
-						#{0000}				; File last modification time
-						#{0000}				; File last modification date
-						crc					; CRC-32
-						compressed-size		; Compressed size
-						uncompressed-size	; Uncompressed size
-						filename-length		; File name length
-						#{0000}				; Extra field length
-						#{0000}				; File comment length
-						#{0000}				; Disk number where file starts
-						#{0000}				; Internal file attributes
-						#{00000000}			; External file attributes
-						to-long offset		; Relative offset of local file header
-						filename			; File name
-						#{}					; Extra field
-						#{}					; File comment
-					]
-				]
-
-				append bin rejoin [
-					dir
-					#{504B0506}			; End of central directory signature
-					#{0000}				; Number of this disk
-					#{0000}				; Disk where central directory starts
-					entries: to-short divide length? source 2	; Number of central directory records on this disk
-					entries				; Total number of central directory records
-					to-long length? dir	; Size of central directory
-					to-long length? bin	; Offset of start of central directory
-					#{0000}				; Comment length
-					#{}					; Comment
-				]
-
-				bin
-			]
-		]
 	]
 
 	as-date: function [
@@ -466,7 +301,7 @@ ctx-munge: context [
 		also either excel? data [
 			any [
 				binary? data
-				data: unarchive/only data rejoin [%xl/worksheets/sheet any [number 1] %.xml]
+				data: unzip data rejoin [%xl/worksheets/Sheet any [number 1] %.xml]
 				settings/error reform [number "is not a valid sheet number"]
 			]
 			dim: cols: 0
@@ -690,15 +525,15 @@ ctx-munge: context [
 	excel?: function [
 		"Returns TRUE if file is Excel or worksheet is XML"
 		data [file! url! binary! string!]
-	] compose/deep [
+	] [
 		switch/default type?/word data [
 			string!		[false]
-			binary!		[not not find copy/part data 8 #{3C3F786D6C}]	; ignore UTF mark
+			binary!		[not none? find copy/part data 8 #{3C3F786D6C}]	; ignore UTF mark
 		] [
 			all [
 				suffix? data
 				%.xls = copy/part suffix? data 4
-				#{504B} = (settings/read-binary-part) data 2	; PK
+				#{504B} = read/binary/part data 2	; PK
 			]
 		]
 	]
@@ -745,11 +580,11 @@ ctx-munge: context [
 		"Returns the first non-empty line of a file"
 		data [file! url! string! binary!]
 		/local cols len row
-	] compose/deep [
+	] [
 		data: deline/lines either string? data [
 			copy/part data 4096
 		] [
-			latin1-to-utf8 either binary? data [copy/part data 4096] [(settings/read-binary-part) data 4096]
+			read-string either binary? data [copy/part data 4096] [read/binary/part data 4096]
 		]
 
 		either settings/field-scan [
@@ -819,9 +654,9 @@ ctx-munge: context [
 	last-line: function [
 		"Returns the last non-empty line of a file"
 		data [file! url! string!]
-	] compose/deep [
+	] [
 		data: reverse deline/lines either string? data [skip data -4096 + length? data] [
-			latin1-to-utf8 (either settings/build = 'red [[read/binary/seek]] [[read/seek]]) data max 0 -4096 + size? data
+			read-string read/binary/seek data max 0 -4096 + size? data
 		]
 
 		foreach line data [
@@ -829,49 +664,6 @@ ctx-munge: context [
 		]
 
 		copy ""
-	]
-
-	latin1-to-utf8: function [
-		"Latin1 binary to UTF-8 string conversion"
-		data [binary!]
-	] [
-		;	http://stackoverflow.com/questions/21716201/perform-file-encoding-conversion-with-rebol-3
-		all [settings/console settings/called 'latin1-to-utf8]
-
-		unless settings/as-is [
-			;	remove #"^@"
-			trim/with data null
-			;	replace char 160 with space
-			mark: data
-			while [mark: find mark #{C2A0}] [
-				change/part mark #{20} 2
-			]
-			;	replace em/no-break/ideographic space with space
-			mark: data
-			while [mark: any [find mark #{E28083} find mark #{E280AF} find mark #{E38080}]] [
-				change/part mark #{20} 3
-			]
-			;	replace dash with hyphen
-			mark: data
-			while [mark: find mark #{E28093}] [
-				change/part mark #{2D} 3
-			]
-			;	replace latin1 with UTF
-			mark: data
-			while [mark: invalid-utf? mark] [
-				change/part mark to char! mark/1 1
-			]
-		]
-
-		also deline either 262144 >= length? data [to string! data] [
-			s: make string! length? data
-			while [not tail? data] [
-				append s to string! copy/part data 262144
-				all [cr = last s take/last s]
-				data: skip data 262144
-			]
-			s
-		] all [settings/console settings/exited]
 	]
 
 	letter: charset [#"A" - #"Z" #"a" - #"z"]
@@ -888,7 +680,8 @@ ctx-munge: context [
 		series [any-string!] "Series to search"
 		value [any-string!] "Value to find"
 		/local part
-	] either settings/build = 'r3 [[
+	] either settings/build = 'r3x [[
+		;	blocked by https://github.com/Oldes/Rebol-issues/issues/2522
 		all [find/any/match series value true]
 	]] [compose [
 		;	http://stackoverflow.com/questions/31612164/does-anyone-have-an-efficient-r3-function-that-mimics-the-behaviour-of-find-any
@@ -919,26 +712,6 @@ ctx-munge: context [
 		] [data]
 	]
 
-	load-basic: function [
-		"Parses basic delimiter-separated values into row blocks"
-		file [file! binary! url!]
-		/flat "Flatten rows"
-		/local s
-	] [
-		all [settings/console settings/called 'load-basic]
-		dlm: delimiter? line: first-line file
-		blk: copy []
-		either flat [action: [(append blk trim s)]] [
-			row: make block! cols: 1 + subtract length? line length? trim/with line dlm
-			action: [(
-				append row trim s
-				all [cols = length? row append/only blk copy row clear row]
-			)]
-		]
-		parse read-string file [any [copy s to [dlm | lf | end] action skip]]
-		also blk all [settings/console settings/exited]
-	]
-
 	load-dsv: function [
 		"Parses delimiter-separated values into row blocks"
 		source [file! url! binary! string!]
@@ -959,18 +732,19 @@ ctx-munge: context [
 		source: either string? source [
 			deline source
 		] [
-			if file? source [
-				all [
-					excel? source
-					settings/error reform [last split-path source "is an Excel file"]
-				]
-				all [
-					#{22} = to binary! read/part source 1
-					csv: true
-				]
+			all [
+				excel? source
+				settings/error reform [last split-path source "is an Excel file"]
+			]
+			all [
+				#{22} = either binary? source [copy/part source 1] [to binary! read/part source 1]
+				csv: true
 			]
 			read-string source
 		]
+
+		recycle
+		recycle
 
 		any [with delimiter: delimiter? source]
 
@@ -1039,29 +813,11 @@ ctx-munge: context [
 	load-fixed: function [
 		"Loads fixed-width values from a file"
 		file [file! url!]
-		/spec
-			widths [block!]
+		widths [block!]
 		/part
 			columns [integer! block!]
 	] [
 		all [settings/console settings/called 'load-fixed]
-
-		unless spec [
-			widths: reduce [1 + length? line: first-line file]
-			;	R2/Red index? fails on none
-			while [all [s: find/last/tail line "  " i: index? s]] [
-				insert widths i
-				line: trim copy/part line i - 1
-			]
-
-			insert widths 1
-
-			repeat i -1 + length? widths [
-				poke widths i widths/(i + 1) - widths/:i
-			]
-
-			take/last widths
-		]
 
 		spec: copy []
 		pos: 1
@@ -1084,13 +840,15 @@ ctx-munge: context [
 
 		blk: copy []
 
-		foreach line deline/lines read-string file compose/deep [
-			all [line/1 = #"^L" remove line]
+		foreach line read/lines file compose/deep [
 			any [
 				empty? trim copy line
 				append/only blk reduce [(spec)]
 			]
 		]
+
+		recycle
+		recycle
 
 		list blk
 	]
@@ -1114,17 +872,17 @@ ctx-munge: context [
 		]
 
 		any [
-			sheet: unarchive/only file rejoin [%xl/worksheets/sheet number: any [number 1] %.xml]
+			sheet: unzip file rejoin [%xl/worksheets/Sheet number: any [number 1] %.xml]
 			settings/error reform [number "is not a valid sheet number"]
 		]
 
 		strings: make block! 65536
 
-		parse latin1-to-utf8 unarchive/only file %xl/sharedStrings.xml [
+		parse read-string unzip file %xl/sharedStrings.xml [
 			any [
 				thru "<si>"
 				thru ">" any [#" "] copy s to "<" (
-					either s [	; R2 can return none
+					either s [
 						all [
 							find trim/lines s "&"
 							foreach [code char] [
@@ -1140,6 +898,9 @@ ctx-munge: context [
 				)
 			]
 		]
+
+		recycle
+		recycle
 
 		if settings/denull [
 			foreach val strings [
@@ -1165,7 +926,9 @@ ctx-munge: context [
 		]
 
 		if any [fields find reform [columns condition] "&"] [
-			parse latin1-to-utf8 copy/part sheet find/tail sheet #{3C2F726F773E} rule
+			parse read-string copy/part sheet find/tail sheet #{3C2F726F773E} rule
+			recycle
+			recycle
 			all [fields return row]
 			set [columns condition] munge/spec/part/where reduce [row] columns condition
 		]
@@ -1191,7 +954,10 @@ ctx-munge: context [
 
 		blk: copy []
 
-		parse latin1-to-utf8 sheet bind rule 'row
+		parse read-string sheet bind rule 'row
+
+		recycle
+		recycle
 
 		list blk
 	]
@@ -1501,7 +1267,12 @@ ctx-munge: context [
 		"Read string from a text file"
 		source [file! url! binary!]
 	] compose/deep [
-		also latin1-to-utf8 either binary? source [source] [(settings/read-binary) source] all [settings/console settings/exited]
+		all [settings/console settings/called 'read-string]
+		also either binary? source [
+			deline to string! source
+		] [
+			(either settings/build = 'r3 [[read/string]] [[read]]) source
+		] all [settings/console settings/exited]
 	]
 
 	replace-deep: function [
@@ -1537,7 +1308,7 @@ ctx-munge: context [
 		either excel? data [
 			any [
 				binary? data
-				data: unarchive/only data rejoin [%xl/worksheets/sheet any [number 1] %.xml]
+				data: unzip data rejoin [%xl/worksheets/Sheet any [number 1] %.xml]
 				settings/error reform [number "is not a valid sheet number"]
 			]
 			all [
@@ -1563,9 +1334,9 @@ ctx-munge: context [
 
 	second-last: penult: function [
 		"Returns the second last value of a series"
-		string [series!]
+		series [series!]
 	] [
-		pick string subtract length? string 1
+		pick series subtract length? series 1
 	]
 
 	sheets?: function [
@@ -1575,7 +1346,7 @@ ctx-munge: context [
 	] [
 		all [settings/console settings/called 'sheets?]
 		blk: copy []
-		parse to string! unarchive/only file %xl/workbook.xml [
+		parse to string! unzip file %xl/workbook.xml [
 			any [thru {<sheet name="} copy name to {"} (append blk trim name)]
 		]
 		also blk all [settings/console settings/exited]
@@ -1729,7 +1500,7 @@ ctx-munge: context [
 				attempt [
 					either any [ ; Excel
 						all [digits? date 6 > length? date]
-						all [find date "." attempt [to decimal! date] date: first (either settings/build = 'r3a [[parse date "."]] [[split date "."]])]
+						all [find date "." attempt [to decimal! date] date: first split date "."]
 					] [
 						date: 30-Dec-1899 + to integer! date
 						all [
@@ -1747,7 +1518,7 @@ ctx-munge: context [
 							;	YYYYDDMM
 							reduce [copy/part date 4 copy/part skip date 4 2 copy/part skip date 6 2]
 						] [
-							(either settings/build = 'r3a [[parse date "/- "]] [[split date make bitset! "/- "]])
+							split date make bitset! "/- "
 						]
 						date: to date! case [
 							mdy		[reduce [to integer! date/2 to integer! date/1 to integer! date/3]]
@@ -1810,165 +1581,6 @@ ctx-munge: context [
 		]
 	]
 
-	deflate: function [
-		"Decompresses a gzip encoding"
-		data [binary!]
-	] case [
-		settings/build = 'r3	[[decompress data 'gzip]]
-		settings/build = 'r3a	[[decompress/gzip append copy #{789C} skip head reverse/part skip tail copy data -8 4 10]]
-;		settings/build = 'red	[[decompress data 'gzip]]
-		true [[
-			set?: function [value bit] [not zero? value and to integer! 2 ** bit]
-
-			any [#{1F8B08} = copy/part data 3 settings/error "Bad ID or Unknown Method"]
-
-			flags: data/4
-
-			data: skip data 10
-
-			all [set? flags 1 data: skip data 2]											; crc-16?
-			all [set? flags 2 data: skip data 2 data: skip data data/2 * 256 + data/1 + 2]	; extra?
-			all [set? flags 3 data: find/tail data #"^@"]									; name?
-
-			size: to integer! head reverse copy skip tail data -4
-
-			data: copy/part data skip tail data -8
-
-			data: load/as rejoin [
-				#{89504E470D0A1A0A}	; signature
-				#{0000000D}			; IHDR length
-				"IHDR"				; type: header
-									; width = uncompressed size
-				to binary! size
-				#{00000001}			; height = 1 line
-				#{08}				; bit depth
-				#{00}				; color type = grayscale
-				#{00}				; compression method
-				#{00}				; filter method = none
-				#{00}				; interlace method = no interlace
-				#{00000000}			; no checksum
-									; length
-				to binary! 8 + length? data
-				"IDAT"				; type: data
-				#{789C}				; zlib header
-				#{000100FEFF00}		; 0 = no filter for scanline
-				data
-				#{00000000}			; no checksum
-				#{00000000}			; length
-				"IEND"				; type: end
-				#{00000000}			; no checksum
-			] 'png
-
-			bin: make binary! size
-
-			foreach tuple data [append bin tuple/1]
-
-			bin
-		]]
-	]
-
-	unarchive: function [
-		"Decompresses archive (only works with compression methods 'store and 'deflate)"
-		source [file! url! binary!]
-		/only file [file!]
-		/info "File name/sizes only (size only for gzip)"
-		/local method size crc
-	] compose [
-		;	https://en.wikipedia.org/wiki/Zip_(file_format) & http://www.rebol.org/view-script.r?script=rebzip.r
-		all [settings/console settings/called/file 'unarchive any [file source]]
-
-		any (compose/deep [[binary? source source: (settings/read-binary) source]])
-
-		;	R2 parse copy converts binary! to string!
-		to-int: function [b] [to integer! reverse copy b]
-
-		also case [
-			#{1F8B08} = copy/part source 3 [
-				either info [
-					to integer! reverse skip tail copy source -4
-				] [
-					deflate source
-				]
-			]
-			#{504B0304} <> copy/part source 4 [
-				settings/error reform [source "is not a ZIP file"]
-			]
-			settings/zip? [
-				all [settings/console settings/called 'zip-codec]
-				also either only [
-					either empty? blk: codecs/zip/decode/only source to block! file [none] [blk/2/2]
-				] [
-					blk: make block! 32
-					foreach [name payload] codecs/zip/decode source [
-						append blk reduce [
-							name
-							either info [
-								length? any [second payload copy #{}]
-							] [
-								any [second payload copy #{}]
-							]
-						]
-					]
-					blk
-				] all [settings/console settings/exited]
-			]
-			true [
-				blk: make block! 32
-
-				extract: either zero? source/8 [[
-					;	Local file header - CRC-32, Compressed & Uncompressed fields precede data
-					data: compressed-size skip
-				]] [[
-					;	Data descriptor - data precedes CRC-32, Compressed & Uncompressed fields
-					copy data to #{504B0708} 4 skip
-					copy crc 4 skip
-					copy compressed-size 4 skip (compressed-size: to-int compressed-size)
-					copy size 4 skip
-				]]
-
-				rule: [
-					some [
-						#{504B0304} 4 skip
-						copy method 2 skip
-						4 skip
-						copy crc 4 skip
-						copy compressed-size 4 skip (compressed-size: to-int compressed-size)
-						copy size 4 skip
-						copy name-length 2 skip (name-length: to-int name-length)
-						copy extrafield-length 2 skip (extrafield-length: to-int extrafield-length)
-						copy name name-length skip (name: to-rebol-file to file! name)
-						extrafield-length skip
-						extract
-						(
-							append blk case [
-								info							[reduce [name to-int size]]
-								#"/" = last name				[reduce [name none]]
-								#{00000000} = to binary! size	[reduce [name make binary! 0]]
-								#{0000} = to binary! method		[reduce [name to binary! copy/part data compressed-size]]
-								true [
-									reduce [
-										name
-										deflate rejoin [#{1F8B08000000000002FF} copy/part data compressed-size crc size]
-									]
-								]
-							]
-							all [
-								only
-								name = file
-								also return last blk all [settings/console settings/exited]
-							]
-						)
-					]
-					to end
-				]
-
-				parse source rule
-
-				either only [none] [blk]
-			]
-		] all [settings/console settings/exited]
-	]
-
 	union-only: function [
 		"Returns the union of two tables"
 		table1 [block!]
@@ -1981,6 +1593,14 @@ ctx-munge: context [
 			settings/error "Column count mismatch"
 		]
 		distinct append copy table1 table2
+	]
+
+	unzip: function [
+		"Decompresses file from archive"
+		source [file! url! binary!]
+		file [file!]
+	] [
+		attempt [second second codecs/zip/decode/only source to block! file]
 	]
 
 	write-dsv: function [
@@ -2051,11 +1671,11 @@ ctx-munge: context [
 			unless empty? block [
 				width: length? spec
 
-				append xml-content-types ajoin [{<Override PartName="/xl/worksheets/sheet} sheet-number {.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>}]
+				append xml-content-types ajoin [{<Override PartName="/xl/worksheets/Sheet} sheet-number {.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>}]
 				append xml-workbook ajoin [{<sheet name="} sheet-name {" sheetId="} sheet-number {" r:id="rId} sheet-number {"/>}]
-				append xml-workbook-rels ajoin [{<Relationship Id="rId} sheet-number {" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet} sheet-number {.xml"/>}]
+				append xml-workbook-rels ajoin [{<Relationship Id="rId} sheet-number {" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/Sheet} sheet-number {.xml"/>}]
 
-				;	%xl/worksheets/sheet<n>.xml
+				;	%xl/worksheets/Sheet<n>.xml
 
 				blk: ajoin [
 					xml-version
@@ -2094,14 +1714,14 @@ ctx-munge: context [
 				append blk {</sheetData>}
 				all [filter append blk ajoin [{<autoFilter ref="A1:} to-column-alpha width length? block {"/>}]]
 				append blk {</worksheet>}
-				append xml-archive reduce [rejoin [%xl/worksheets/sheet sheet-number %.xml] blk]
+				append xml-archive reduce [rejoin [%xl/worksheets/Sheet sheet-number %.xml] to binary! blk]
 
 				sheet-number: sheet-number + 1
 			]
 		]
 
 		insert xml-archive reduce [
-			%"[Content_Types].xml" ajoin [
+			%"[Content_Types].xml" to binary! ajoin [
 				xml-version
 				{<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
 					<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
@@ -2110,13 +1730,13 @@ ctx-munge: context [
 					xml-content-types
 				{</Types>}
 			]
-			%_rels/.rels ajoin [
+			%_rels/.rels to binary! ajoin [
 				xml-version
 				{<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 					<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
 				</Relationships>}
 			]
-			%xl/workbook.xml ajoin [
+			%xl/workbook.xml to binary! ajoin [
 				xml-version
 				{<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x15" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">
 					<workbookPr defaultThemeVersion="153222"/>
@@ -2125,7 +1745,7 @@ ctx-munge: context [
 					{</sheets>
 				</workbook>}
 			]
-			%xl/_rels/workbook.xml.rels ajoin [
+			%xl/_rels/workbook.xml.rels to binary! ajoin [
 				xml-version
 				{<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">}
 					xml-workbook-rels
@@ -2133,7 +1753,7 @@ ctx-munge: context [
 			]
 		]
 
-		write file archive xml-archive
+		write file codecs/zip/encode xml-archive
 
 		file
 	]
