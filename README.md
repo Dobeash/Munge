@@ -2,7 +2,7 @@
 
 > Updated 14-Oct-2022
 
-Munge is a collection of data manipulation functions designed to work with the following three Rebol distributions:
+Munge is a collection of data manipulation functions designed to work with the following two Rebol distributions:
 
 - [Oldes/Rebol3](https://github.com/Oldes/Rebol3)
 - [Red](https://www.red-lang.org)
