@@ -1,3 +1,22 @@
+# 3.1.2 - February 2023
+
+## Removed
+
+- Support for Red
+- like
+- second-last
+
+## Added
+
+- filename?
+- split-on
+
+## Updated
+
+- Replaced use of charset with make bitset!
+- Replaced use of character literals with words (e.g. `#" "` with `space`)
+- Added `protect` for the following words: `backslash`, `comma`, `cr`, `crlf`, `dot`, `escape`, `lf`, `newline`, `null`, `slash`, `space`, `tab`
+
 # 3.1.1 - October 2022
 
 ## Removed
