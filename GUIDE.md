@@ -217,23 +217,3 @@ If you need to exclude the first row from processing then you can use `next`.
     >> munge/where next blk [&Age: to-integer &Age]  ; skip "Age" value
     >> blk
     >> [["First Name" "Age"] ["Ben" 25] ["Bob" 35]]
-
-# Known Issues
-
-## Excel files don't work with Red
-
-At present Red's implementation of `compress` and `decompress` are not compatable with Rebol3 so `load-xml`, `sheets?`, and `write-excel` will not work.
-
-## read-string fails with latin1 on Red
-
-At present Red's implementation of `read` does not cope with non-UTF8 encodings (e.g. latin1). As an example:
-
-    R3> write %latin1.txt #{4173686C6579205472FC746572}
-    R3> read/string %latin1.txt
-    == Ashley Trüter
-    
-    Red> read %latin1.txt
-    *** Access Error: invalid UTF-8 encoding: #{FC746572}
-    *** Where: read
-    *** Near : %latin1.txt
-    *** Stack:
