@@ -1,22 +1,16 @@
-; Red [] ; commented as 'red is undefined in Rebol3/Base
 Rebol [
 	Title:		"Munge functions"
 	Owner:		"Ashley G Truter"
-	Version:	3.1.1
-	Date:		14-Oct-2022
+	Version:	3.1.2
+	Date:		20-Feb-2023
 	Purpose:	"Extract and manipulate tabular values in blocks, delimited files, and database tables."
 	Licence:	"MIT. Free for both commercial and non-commercial use."
 	Tested: {
-		Windows x86
-			CLI Red			14-Oct-2022		red-lang.org
-		Windows x64
-			Rebol3/Core		3.10.0			github.com/Oldes/Rebol3
-		macOS x64
-			Rebol3/Core		3.10.0			github.com/Oldes/Rebol3
+		Rebol3/Core 3.10.3	github.com/Oldes/Rebol3
 	}
 	Usage: {
 		as-date				Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
-		as-time				Convert a string time to a HH:MM string (does not handle Excel).
+		as-time				Convert a string time to a HH:MM string (does not handle Excel or HHMMSS).
 		call-out			Call OS command returning STDOUT.
 		check				Verify data structure.
 		cols?				Number of columns in a delimited file or string.
@@ -34,13 +28,13 @@ Rebol [
 		excel?				Returns TRUE if file is Excel or worksheet is XML.
 		export				Export words to global context.
 		fields?				Column names in a delimited file or string.
+		filename?			Return the file name of a path or url.
 		first-line			Returns the first non-empty line of a file.
 		flatten				Flatten nested block(s).
 		intersect-only		Returns the intersection of two tables.
 		last-line			Returns the last non-empty line of a file.
 		letter				LETTER is a bitset! value: make bitset! #{00000000000000007FFFFFE07FFFFFE0}
 		letters?			Returns TRUE if data only contains letters.
-		like				Finds a value in a series, expanding * (any characters) and ? (any one character), and returns TRUE if found.
 		list				Uses settings to optionally trim strings and set the new-line marker.
 		load-dsv			Parses delimiter-separated values into row blocks.
 		load-fixed			Loads fixed-width values from a file.
@@ -51,11 +45,12 @@ Rebol [
 		mixedcase			Converts string of characters to mixedcase.
 		munge				Load and/or manipulate a block of tabular (column and row) values.
 		oledb				Execute an OLEDB statement.
+		penult				Returns the second last value of a series.
 		read-string			Read string from a text file.
 		replace-deep		Replaces all occurences of search values with new values in a block or nested block.
 		rows?				Number of rows in a delimited file or string.
-		second-last/penult	Returns the second last value of a series.
 		sheets?				Excel sheet names.
+		split-on			Split a series into pieces by delimiter.
 		sqlcmd				Execute a SQL Server statement.
 		sqlite				Execute a SQLite statement.
 		to-column-alpha		Convert numeric column reference to an alpha column reference.
@@ -70,89 +65,32 @@ Rebol [
 	}
 ]
 
-case [
-	;	*** Red ***
-	not rebol [
+protect/words [backslash comma cr crlf dot escape lf newline null slash space tab]
 
-		foreach word [ajoin decimal! deline reform to-rebol-file] [
-			all [value? word print [word "already defined!"]]
-		]
+average: function [
+	"Returns the average of all values in a block"
+	block [block!]
+] [
+	all [empty? block return none]
+	divide sum block length? block
+]
 
-		ajoin: function [
-			block [block!]
-			"Reduces and joins a block of values into a new string."
-		] [
-			make string! reduce block
-		]
-
-		decimal!: float!
-
-		deline: function [
-			string [any-string!]
-			/lines "Return block of lines (works for LF, CR, CR-LF endings) (no modify)"
-			"Converts string terminators to standard format, e.g. CRLF to LF"
-		] [
-			trim/with string cr
-			either lines [split string lf] [string]
-		]
-
-		reform: function [
-			"Forms a reduced block and returns a string"
-			value "Value to reduce and form"
-		] [
-			form reduce value
-		]
-
-		to-month-number: function [
-			"Convert month name to number"
-			month [string!]
-		] [
-			index? any [
-				find ["Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"] month
-				find system/locale/months month
-			]
-		]
-
-		to-rebol-file: :to-red-file
-	]
-	;	*** Oldes R3 ***
-	3 = system/version/1 [
-
-		average: function [
-			"Returns the average of all values in a block"
-			block [block!]
-		] [
-			all [empty? block return none]
-			divide sum block length? block
-		]
-
-		sum: function [
-			"Returns the sum of all values in a block"
-			values [block!]
-		] [
-			result: 0
-			foreach value values [result: result + value]
-			result
-		]
-	]
-	true [
-		print "Unsupported Rebol version or derivative"
-		quit
-	]
+sum: function [
+	"Returns the sum of all values in a block"
+	values [block!]
+] [
+	result: 0
+	foreach value values [result: result + value]
+	result
 ]
 
 ctx-munge: context [
 
 	settings: context [
 
-		version: system/script/header/version
-
-		build: either rebol ['r3] ['red]
-
 		;	Features
 
 		windows?:	"a\b" = to-local-file %a/b
-		x64?:		integer? 9223372036854775807
 		zip?:		not none? attempt [codecs/zip system/options/log/zip: 0]
 
 		stack: copy []
@@ -161,17 +99,11 @@ ctx-munge: context [
 
 		called: function [
 			name [word! none!]
-			/file path [file! url! binary!]
+			/file path [file! url!]
 		] [
-			all [
-				file
-				not binary! path
-				not exists? path
-				error reform ["Cannot open" path]
-			]
 			any [trace exit]
 			either word? name [
-				insert/dup message: reform ["Call" either all [file not binary? path] [reform [name "on" last split-path path]] [name]] "  " length? stack
+				insert/dup message: reform ["Call" either file [reform [name "on" filename? path]] [name]] "  " length? stack
 				all [
 					empty? stack
 					recycle
@@ -185,7 +117,7 @@ ctx-munge: context [
 				take/last stack
 			]
 
-			print [next next next to-string-time/precise difference now/precise start-time head insert/dup s: form to integer! stats - start-used / 1048576 " " 4 - length? s message]
+			print [next next next to-string-time/precise difference now/precise start-time head insert/dup s: form to integer! stats - start-used / 1048576 space 4 - length? s message]
 		]
 
 		exited: function [] [
@@ -208,23 +140,15 @@ ctx-munge: context [
 		"Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM)"
 		string [string!]
 		/mdy "Month/Day/Year format"
-	] compose/deep [
+	] compose [
+		date: split-on string (make bitset! "/- ")
 		any [
 			attempt [
-				date: split string make bitset! "/- "
-				(either settings/build = 'red [[
-					date: to date! either mdy [
-						reduce [to integer! date/2 either digits? date/1 [to integer! date/1] [to-month-number date/1] to integer! date/3]
-					] [
-						reduce [to integer! date/1 either digits? date/2 [to integer! date/2] [to-month-number date/2] to integer! date/3]
-					]
-				]] [[
-					date: to date! either mdy [
-						ajoin [date/2 "/" date/1 "/" date/3]
-					] [
-						ajoin [date/1 "/" date/2 "/" date/3]
-					]
-				]])
+				date: to date! either mdy [
+					ajoin [date/2 "/" date/1 "/" date/3]
+				] [
+					ajoin [date/1 "/" date/2 "/" date/3]
+				]
 				all [date/year < 100 date/year: date/year + 2000]
 				ajoin [date/year "-" next form 100 + date/month "-" next form 100 + date/day]
 			]
@@ -233,7 +157,7 @@ ctx-munge: context [
 	]
 
 	as-time: function [
-		"Convert a string time to an HH:MM string (does not handle Excel or YYYYDDMM)"
+		"Convert a string time to an HH:MM string (does not handle Excel or HHMMSS)"
 		time [string!]
 	] [
 		either attempt [hhmm: to time! trim/with copy time "APM "] [
@@ -319,7 +243,13 @@ ctx-munge: context [
 			]
 			max dim cols
 		] [
-			length? either with [fields?/with data delimiter] [fields? data]
+			data: first-line data
+			delimiter: any [delimiter delimiter? data]
+			length? either find data {"} [
+				load-dsv/flat/ignore/with/csv data delimiter
+			] [
+				either empty? data [make block! 0] [split-on data delimiter]
+			]
 		] all [settings/console settings/exited]
 	]
 
@@ -438,7 +368,7 @@ ctx-munge: context [
 		blk
 	]
 
-	digit: charset [#"0" - #"9"]
+	digit: make bitset! [#"0" - #"9"]
 
 	digits?: function [
 		"Returns TRUE if data not empty and only contains digits"
@@ -458,7 +388,7 @@ ctx-munge: context [
 			repeat col length? first data [
 				discard?: true
 				foreach row next data [
-					unless empty? row/:col [
+					unless empty? form row/:col [
 						discard?: false
 						break
 					]
@@ -533,7 +463,7 @@ ctx-munge: context [
 			all [
 				suffix? data
 				%.xls = copy/part suffix? data 4
-				#{504B} = read/binary/part data 2	; PK
+				#{504B030414} = read/binary/part data 5
 			]
 		]
 	]
@@ -562,18 +492,23 @@ ctx-munge: context [
 		] [
 			data: first-line data
 			delimiter: any [delimiter delimiter? data]
-			case [
-				empty? data [
-					make block! 0
-				]
-				#"^"" = first data [
-					load-dsv/flat/ignore/with/csv data delimiter
-				]
-				true [
-					load-dsv/flat/ignore/with data delimiter
-				]
+			either find data {"} [
+				load-dsv/flat/ignore/with/csv data delimiter
+			] [
+				either empty? data [make block! 0] [split-on data delimiter]
 			]
 		] all [settings/console settings/exited]
+	]
+
+	filename?: function [
+		"Return the file name of a path or url"
+		path [file! url!]
+	] [
+		copy any [
+			find/last/tail path %/
+			find/last/tail path %\
+			path
+		]
 	]
 
 	first-line: function [
@@ -666,7 +601,7 @@ ctx-munge: context [
 		copy ""
 	]
 
-	letter: charset [#"A" - #"Z" #"a" - #"z"]
+	letter: make bitset! [#"A" - #"Z" #"a" - #"z"]
 
 	letters?: function [
 		"Returns TRUE if data only contains letters"
@@ -675,40 +610,17 @@ ctx-munge: context [
 		not find data (complement letter)
 	]
 
-	like: function [
-		"Finds a value in a series, expanding * (any characters) and ? (any one character), and returns TRUE if found"
-		series [any-string!] "Series to search"
-		value [any-string!] "Value to find"
-		/local part
-	] either settings/build = 'r3x [[
-		;	blocked by https://github.com/Oldes/Rebol-issues/issues/2522
-		all [find/any/match series value true]
-	]] [compose [
-		;	http://stackoverflow.com/questions/31612164/does-anyone-have-an-efficient-r3-function-that-mimics-the-behaviour-of-find-any
-		all [empty? series return none]
-		literal: (complement charset "*?")
-		value: collect [
-			parse value [
-				end (keep [return (none)]) |
-				some #"*" end (keep [to end]) |
-				some [
-					#"?" (keep 'skip) |
-					copy part some literal (keep part) |
-					some #"*" any [#"?" (keep 'skip)] opt [copy part some literal (keep 'thru keep part)]
-				]
-			]
-		]
-		any [parse series [some [result: value (return true)]] none]
-	]]
-
 	list: function [
 		"Uses settings to optionally trim strings and set the new-line marker"
 		data [block!]
 	] [
 		either settings/console [
-			foreach row data [all [block? row new-line/all row false]]
+			if block? first data [
+				foreach row data [new-line/all row false]
+				new-line/all data true
+			]
 			settings/exited
-			new-line/all data true
+			data
 		] [data]
 	]
 
@@ -734,7 +646,7 @@ ctx-munge: context [
 		] [
 			all [
 				excel? source
-				settings/error reform [last split-path source "is an Excel file"]
+				settings/error reform [filename? source "is an Excel file"]
 			]
 			all [
 				#{22} = either binary? source [copy/part source 1] [to binary! read/part source 1]
@@ -778,8 +690,6 @@ ctx-munge: context [
 
 		line: 0
 
-		blk: copy []
-
 		append last last rule compose/deep [
 			line: line + 1
 			(either settings/as-is [] [[foreach val row [trim/lines val]]])
@@ -803,11 +713,11 @@ ctx-munge: context [
 			]
 		]
 
+		blk: make block! either flat [(rows? source) * either part [length? columns] [cols]] [rows? source]
+
 		parse source bind rule 'row
 
-		either flat [
-			also either ignore [blk] [new-line/all/skip blk true cols] all [settings/console settings/exited]
-		] [list blk]
+		list blk
 	]
 
 	load-fixed: function [
@@ -914,7 +824,7 @@ ctx-munge: context [
 			to "<row"
 			any [
 				opt [newline]
-				opt ["<row" (append/dup row: make block! cols "" cols)]
+				opt ["<row" (append/dup row: make block! cols copy "" cols)]
 				thru {<c r="} copy col to digit
 				copy type thru ">"
 				opt ["<v>" copy val to "</v></c>" (
@@ -1032,7 +942,7 @@ ctx-munge: context [
 		string [string!]
 	] [
 		uppercase/part lowercase string 1
-		foreach char [#"'" #" " #"-" #"." #","] [
+		foreach char [#"'" space #"-" dot comma] [
 			all [find string char string: next find string char mixedcase string]
 		]
 		string: head string
@@ -1148,19 +1058,13 @@ ctx-munge: context [
 					part
 				] ['row]
 				blk: copy []
-				foreach row data compose [
-					(
-						either where [
-							either settings/build = 'red [
-								bind compose/deep [all [(condition) append/only blk (columns)]] 'row
-							] [
-								compose/deep [all [(condition) append/only blk (columns)]]
-							]
-						] [
-							compose [append/only blk (columns)]
-						]
-					)
-				]
+				foreach row data compose [(
+					either where [
+						compose/deep [all [(condition) append/only blk (columns)]]
+					] [
+						compose [append/only blk (columns)]
+					]
+				)]
 				all [
 					empty? blk
 					also return blk all [settings/console settings/exited]
@@ -1235,13 +1139,12 @@ ctx-munge: context [
 			all [settings/console settings/called/file 'oledb file]
 			statement: replace/all copy statement {'} {''}
 			properties: either %.accdb = suffix? file [""] [
-				parse statement [thru "FROM " copy sheet [to " " | to end]]
+				parse statement [thru "FROM " copy sheet [to space | to end]]
 				replace statement reform ["FROM" sheet] ajoin ["FROM ['+$o.GetSchema('Tables').rows[" -1 + to integer! skip sheet 5 "].TABLE_NAME+']"]
 				{;Extended Properties=''Excel 12.0 Xml;HDR=NO;IMEX=1;Mode=Read''}
 			]
 			blk: remove load-dsv/csv/with call-out ajoin [
-				either settings/x64? ["powershell "] ["C:\Windows\SysNative\WindowsPowerShell\v1.0\powershell.exe "]
-				{-nologo -noprofile -command "}
+				{powershell -nologo -noprofile -command "}
 					{$o=New-Object System.Data.OleDb.OleDbConnection('Provider=Microsoft.ACE.OLEDB.12.0;}
 						{Data Source=\"} replace/all to-local-file clean-path file "'" "''" {\"} properties {');}
 					{$o.Open();$s=New-Object System.Data.OleDb.OleDbCommand('} statement {');}
@@ -1263,16 +1166,26 @@ ctx-munge: context [
 		]
 	]
 
+	penult: function [
+		"Returns the second last value of a series"
+		series [series!]
+	] [
+		pick series subtract length? series 1
+	]
+
 	read-string: function [
 		"Read string from a text file"
 		source [file! url! binary!]
-	] compose/deep [
+	] [
 		all [settings/console settings/called 'read-string]
-		also either binary? source [
-			deline to string! source
-		] [
-			(either settings/build = 'r3 [[read/string]] [[read]]) source
-		] all [settings/console settings/exited]
+		any [binary? source source: read/binary source]
+		trim/with source null
+		;	replace char 160 with space
+		mark: source
+		while [mark: find mark #{C2A0}] [
+			change/part mark #{20} 2
+		]
+		also deline either invalid-utf? source [iconv source 'latin1] [to string! source] all [settings/console settings/exited]
 	]
 
 	replace-deep: function [
@@ -1332,13 +1245,6 @@ ctx-munge: context [
 		]
 	]
 
-	second-last: penult: function [
-		"Returns the second last value of a series"
-		series [series!]
-	] [
-		pick series subtract length? series 1
-	]
-
 	sheets?: function [
 		"Excel sheet names"
 		file [file! url!]
@@ -1350,6 +1256,17 @@ ctx-munge: context [
 			any [thru {<sheet name="} copy name to {"} (append blk trim name)]
 		]
 		also blk all [settings/console settings/exited]
+	]
+
+	split-on: function [
+		"Split a series into pieces by delimiter"
+		series [series!]
+		dlm [char! bitset! string!]
+		/local s
+	] [
+		blk: copy []
+		parse series [any [copy s to [dlm | end] (append blk trim s) thru dlm]]
+		blk
 	]
 
 	sqlcmd: function [
@@ -1373,7 +1290,7 @@ ctx-munge: context [
 			stdout: either 32000 > length? statement [
 				call-out reform compose ["sqlcmd -m 1 -X -S" server "-d" database "-I -Q" ajoin [{"} statement {"}] {-W -w 65535 -s"^-"} (either headings [] [{-h -1}])]
 			] [
-				write file: to file! append replace datetime " " "_" %.sql statement
+				write file: to file! append replace datetime space #"_" %.sql statement
 				also call-out reform compose ["sqlcmd -m 1 -X -S" server "-d" database "-I -i" file {-W -w 65535 -s"^-"} (either headings [] [{-h -1}])] attempt [delete file]
 			]
 
@@ -1389,17 +1306,17 @@ ctx-munge: context [
 				stdout/1 = #"^/" [
 					also make block! 0 all [settings/console settings/exited]
 				]
-				like stdout "Msg*,*Level*,*State*,*Server" [
+				find/any/match stdout "Msg*,*Level*,*State*,*Server" [
 					settings/error trim/lines find stdout "Line"
 				]
-				like stdout "Warning:*(0 rows affected)" [
+				find/any/match stdout "Warning:*(0 rows affected)" [
 					settings/error find/tail first deline/lines stdout "Warning: "
 				]
 				true [
 					stdout: copy/part stdout find stdout "^/^/("
 
 					either flat [
-						cols: cols?/with first-line stdout tab
+						cols: cols?/with stdout tab
 
 						stdout: load-dsv/flat/with stdout tab
 
@@ -1475,13 +1392,11 @@ ctx-munge: context [
 	to-field-spec: function [
 		"Convert field strings to words"
 		fields [block!]
-	] [
-		invalid-spec-chars: complement charset [#"A" - #"Z" #"a" - #"z" #"0" - #"9" #"-" #"_" #"."]
-
+	] compose/deep [
 		blk: copy []
 
 		foreach field fields [
-			remove-each char field: form field [find invalid-spec-chars char]
+			remove-each char field: form field [find (complement make bitset! [#"A" - #"Z" #"a" - #"z" #"0" - #"9" #"-" #"_" #"."]) char]
 			append blk to word! append copy "&" field
 		]
 
@@ -1500,7 +1415,7 @@ ctx-munge: context [
 				attempt [
 					either any [ ; Excel
 						all [digits? date 6 > length? date]
-						all [find date "." attempt [to decimal! date] date: first split date "."]
+						all [find date dot attempt [to decimal! date] date: first split-on date dot]
 					] [
 						date: 30-Dec-1899 + to integer! date
 						all [
@@ -1512,13 +1427,13 @@ ctx-munge: context [
 					] [
 						all [
 							find ["Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"] copy/part date 3
-							date: remove/part copy date index? find date " "
+							date: remove/part copy date index? find date space
 						]
 						date: either digits? date [
 							;	YYYYDDMM
 							reduce [copy/part date 4 copy/part skip date 4 2 copy/part skip date 6 2]
 						] [
-							split date make bitset! "/- "
+							split-on date (make bitset! "/- ")
 						]
 						date: to date! case [
 							mdy		[reduce [to integer! date/2 to integer! date/1 to integer! date/3]]
@@ -1610,9 +1525,10 @@ ctx-munge: context [
 		/utf8
 	] [
 		all [settings/console settings/called 'write-dsv]
-		b: make block! length? data
+		s: make string! 4096
+		p: open/new/write file
+		all [utf8 append p #{EFBBBF}]
 		foreach row data compose/deep [
-			s: copy ""
 			foreach value row [
 				(
 					either %.csv = suffix? file [
@@ -1640,13 +1556,11 @@ ctx-munge: context [
 					]
 				)
 			]
-			take/last s
-			any [empty? s append b s]
+			poke s length? s #"^/"
+			append p s
+			clear s
 		]
-		also either utf8 [
-			write file #{EFBBBF}
-			write/append/lines file b
-		] [write/lines file b] all [settings/console settings/exited]
+		also close p all [settings/console settings/exited]
 	]
 
 	write-excel: function [
