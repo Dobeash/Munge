@@ -8,14 +8,20 @@
 
 ## Added
 
+- write-dsv/utf8
 - filename?
 - split-on
 
 ## Updated
 
+- read-string
 - Replaced use of charset with make bitset!
 - Replaced use of character literals with words (e.g. `#" "` with `space`)
 - Added `protect` for the following words: `backslash`, `comma`, `cr`, `crlf`, `dot`, `escape`, `lf`, `newline`, `null`, `slash`, `space`, `tab`
+
+## Optimized
+
+- write-dsv
 
 # 3.1.1 - October 2022
 
