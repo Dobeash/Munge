@@ -1,3 +1,50 @@
+# 3.1.3 - February 2024
+
+## Removed
+
+- sum (now included in 3.16.0+)
+- average (now included in 3.16.0+)
+- difference-only
+- intersect-only
+- union-only
+- settings/field-scan
+
+## Added
+
+- munge/flat
+- load-xml/flat
+- transpose
+- excel-cols?
+- excel-fields?
+- excel-first-row
+- excel-info
+- excel-last-row
+- excel-load-sheet
+- excel-load-strings
+- excel-pick-row
+- excel-rows?
+- discard-last
+- html-decode
+- html-encode
+- settings/threshold
+
+## Updated
+
+- munge now accepts 0 as column literal (useful for to map! munge/part/flat blk [1 0])
+- Added Excel support for cols?
+- Added Excel support for rows?
+- load-xml better handles Excel variants
+- sheets? better handles Excel variants
+- Various minor help text changes
+
+## Optimized
+
+- Enhanced as-date to cache
+- Enhanced as-time to cache
+- Delta refactored to use natives (but no longer modifies series)
+- parse use (return keyword)
+- `i: i + 1` replaced with `++ i`
+
 # 3.1.2 - February 2023
 
 ## Removed
