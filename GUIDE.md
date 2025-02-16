@@ -98,14 +98,12 @@ By default `denull` is enabled. It can be disabled with `settings/denull: false`
         ["1" "" "2"]
     ]
 
-## Field Scan
+## Threshold
 
-By default `field-scan` is disabled. It can be enabled with `settings/field-scan: true`.
+By default `settings/threshold` is set to `2`. This is the number of non-blank values that must be present in a row before `fields?` returns it.
 
-    >> fields? "Report 99^/A,B^/1,2"
-    == ["Report 99"]
-    >> settings/field-scan: true
-    == ["A" "B"]
+    >> fields? "Report,,^/A,B,C"
+    == ["A" "B" "C"]
 
 # Reading files
 
