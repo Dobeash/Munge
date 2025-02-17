@@ -4,7 +4,7 @@
 
 # Getting started
 
-Download latest release, then from a Rebol or Red console:
+Download latest [Rebol release](https://github.com/Oldes/Rebol3/releases), run, and then from the Rebol console:
 
     >> do %munge.r
     >> ctx-munge/list [1 2 3]
@@ -157,7 +157,7 @@ Note that `to-string-date` and `to-string-time` handle Excel raw date and time f
     >> oledb %file.xlsx "SELECT F1, F2 FROM Sheet1"
     >> oledb %file.xlsx "SELECT * FROM Sheet1 WHERE F1 = '1'"
 
-This only works on Windows and requires the [Microsoft Access Database Engine 2016 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=54920) to first be installed.
+This only works on Windows and requires the [Microsoft Access Database Engine 2016 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (or later) to first be installed.
 
 ## SQL Server
 
