@@ -90,7 +90,7 @@ Its functions are wrapped in a single context named `ctx-munge`.
 
 ## Documentation
 
-> Updated 16-Feb-2023
+> Updated 15-Aug-2025
 
 - [Function Guide](FUNCTIONS.md) - Lists all available functions in the munge script.
 - [User Guide](GUIDE.md) - Describes the use of major functions in the munge script.
