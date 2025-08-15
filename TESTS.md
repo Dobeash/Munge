@@ -39,269 +39,250 @@
 37|cols?/sheet %test.xlsx 1|2
 38|cols?/sheet %test.xlsx 2|2
 39|cols?/sheet %test.xlsx 3|2
-40|discard-last [[""]]|[[]]
-41|discard-last [["A"]]|[["A"]]
-42|discard-last [["A" ""]]|[["A"]]
-43|discard-last [["A" "" ""]]|[["A"]]
-44|deduplicate [["A" "B"] [0 1] [0 2]] '&A|[["A" "B"] [0 2]]
-45|deduplicate [["A" "B"] [0 1] [0 2]] 1|[["A" "B"] [0 2]]
-46|deduplicate/latest [["A" "B"] [0 1] [0 2]] '&A|[["A" "B"] [0 1]]
-47|deduplicate/latest [["A" "B"] [0 1] [0 2]] 1|[["A" "B"] [0 1]]
-48|deduplicate [["" a] ["" b]] 1|[["" a] ["" b]]
-49|deduplicate [[1 a] [1 b]] 1|[[1 b]]
-50|deduplicate/latest [[1 a] [1 b]] 1|[[1 a]]
-51|delimiter? ""|#","
-52|delimiter? "a"|#","
-53|delimiter? "^-"|#"^-"
-54|delimiter? "&#124;"|#"|"
-55|delimiter? "~"|#"~"
-56|delimiter? ";"|#";"
-57|delta [[1] [2]] [[1]]|[[2]]
-58|dezero ""|""
-59|dezero "0"|""
-60|dezero "10"|"10"
-61|dezero "01"|"1"
-62|dezero "001"|"1"
-63|digit|make bitset! #{000000000000FFC0}
-64|digits? ""|#(none)
-65|digits? "a"|#(none)
-66|digits? "1"|#(true)
-67|discard [["a" ""] ["b" ""]]|[["a"] ["b"]]
-68|distinct [["" ""] [a 1]]|[[a 1]]
-69|distinct [[#(none) #(none)] [a 1]]|[[a 1]]
-70|distinct [[a] [a]]|[[a]]
-71|distinct [[a 1] [a 1]]|[[a 1]]
-72|drop [[a b c] [1 2 3]] '&b|[[a c] [1 3]]
-73|drop [[a b c] [1 2 3]] 2|[[a c] [1 3]]
-74|enblock [1 2 3 4] 1|[[1] [2] [3] [4]]
-75|enblock [1 2 3 4] 2|[[1 2] [3 4]]
-76|enzero "" 1|"0"
-77|enzero "10" 1|"10"
-78|enzero "10" 2|"10"
-79|enzero "10" 3|"010"
-80|excel-cols? data|2
-81|excel-fields? data strings|["A B" "S1"]
-82|excel-first-row data|#{3C726F7720723D223122207370616E73...
-83|excel-info %test.xlsx|[["A B" 2 ["A B" "S1"]] ["AB" 2 ["AB" "S2"]] ["A-B" 2 ["A-B" "S3"]]]
-84|excel-last-row data|#{3C726F7720723D223222207370616E73...
-85|excel-load-sheet %test.xlsx 1|#{3C3F786D6C2076657273696F6E3D2231...
-86|excel-load-strings %test.xlsx|["AB" "A B" "A-B" "S1" "S2" "S3"]
-87|excel-pick-row data 2|#{3C726F7720723D223222207370616E73...
-88|excel-rows? data|2
-89|excel? %test.xlsx|#(true)
-90|excel? %a.txt|#(none)
-91|excel? to-binary "<?xml"|#(true)
-92|excel? "Text"|#(false)
-93|export []|[]
-94|export [distinct]|[distinct]
-95|export [cols? rows?]|[cols? rows?]
-96|fields? %a.csv|["F1" "F2"]
-97|fields? %test.xlsx|["A B" "S1"]
-98|fields?/sheet %test.xlsx 1|["A B" "S1"]
-99|fields?/sheet %test.xlsx 2|["AB" "S2"]
-100|fields?/sheet %test.xlsx 3|["A-B" "S3"]
-101|fields? ""|[]
-102|fields? "A,B,C^/1,2,3"|["A" "B" "C"]
-103|fields? "A,B,^/1,2,3"|["A" "B" ""]
-104|fields? "A,,^/1,2,3"|["1" "2" "3"]
-105|fields? ","|["" ""]
-106|fields? "a,b"|["a" "b"]
-107|fields? "^/a,b"|["a" "b"]
-108|fields? "a:b"|["a:b"]
-109|fields? {"a","b"}|["a" "b"]
-110|fields? {"a" ,"b"}|["a" "b"]
-111|fields? {"a", "b"}|["a" "b"]
-112|fields?/with "a:b" #":"|["a" "b"]
-113|filename? %a.txt|%a.txt
-114|filename? %a/b.txt|%b.txt
-115|filename? %a/b.txt|%b.txt
-116|first-line ""|""
-117|first-line "a,1"|"a,1"
-118|first-line "^/a,1"|"a,1"
-119|first-line "a,1^/"|"a,1"
-120|first-value []|#(none)
-121|first-value [""]|#(none)
-122|first-value [1 ""]|1
-123|first-value ["" 1]|1
-124|flatten []|[]
-125|flatten [[a] [b]]|[a b]
-126|flatten [[a 1] [b 2]]|[a 1 b 2]
-127|html-decode "A &amp; B"|"A & B"
-128|html-encode "A & B"|"A &amp; B"
-129|last-line ""|""
-130|last-line "a^/1^/"|"1"
-131|last-line %a.txt|"33 44"
-132|letter|make bitset! #{00000000000000007FFFFFE07FFFFFE0}
-133|letters? ""|#(true)
-134|letters? "a"|#(true)
-135|letters? "1"|#(false)
-136|list []|[]
-137|list [[a] [b]]|[[a] [b]]
-138|load-dsv ""|[]
-139|load-dsv ","|[["" ""]]
-140|load-dsv {" a ^/ b "}|[["a b"]]
-141|load-dsv "a,"|[["a" ""]]
-142|load-dsv {"a" ,"b"}|[["a" "b"]]
-143|load-dsv {"a", "b"}|[["a" "b"]]
-144|load-dsv "a,NULL,b"|[["a" "" "b"]]
-145|load-dsv "a,1^/b,2"|[["a" "1"] ["b" "2"]]
-146|load-dsv "a:b"|[["a:b"]]
-147|load-dsv {"a"&#124;"b"}|[[{"a"} {"b"}]]
-148|load-dsv/csv {"a"&#124;"b"}|[["a" "b"]]
-149|load-dsv/part "a,b,c" 1|[["a"]]
-150|load-dsv/part "a,b,c" [1]|[["a"]]
-151|load-dsv/part "a,b,c" [3 1]|[["c" "a"]]
-152|load-dsv/part "a,b,c" [1 "Y"]|[["a" "Y"]]
-153|load-dsv/part %a.csv '&F1|[["F1"] ["1"]]
-154|load-dsv/where "a,1^/b,2" [row/1 = "a"]|[["a" "1"]]
-155|load-dsv/where "a^/b^/c" [line = 2]|[["b"]]
-156|load-dsv/where %a.csv [&F1 = "1"]|[["1" "2"]]
-157|load-dsv/where "A^/0" [digits? &A &A: to-integer &A]|[[0]]
-158|load-dsv/with "a:b" #":"|[["a" "b"]]
-159|load-dsv/flat "A,B"|["A" "B"]
-160|load-dsv/flat "A,B^/C,D"|["A" "B" "C" "D"]
-161|load-dsv/ignore "a^/b,c"|[["a"] ["b" "c"]]
-162|load-fixed %a.txt [3 2]|[["1" "2"] ["33" "44"]]
-163|load-fixed/part %a.txt [3 2] 1|[["1"] ["33"]]
-164|load-xml %test.xlsx|[["A B" "S1"] ["1" "2"]]
-165|load-xml/sheet %test.xlsx 2|[["AB" "S2"] ["1" "2"]]
-166|load-xml/part %test.xlsx '&S1|[["S1"] ["2"]]
-167|load-xml/where %test.xlsx [&S1 = "2"]|[["1" "2"]]
-168|load-xml/flat %test.xlsx|["A B" "S1" "1" "2"]
-169|max-of []|#(none)
-170|max-of [1 2]|2
-171|merge [] 1 [] 1 [1]|[]
-172|merge [[a 1] [b 2]] 2 [[1 "A"]] 1 [1 4]|[[a "A"]]
-173|merge [[a 1]] 2 [[2 1] [1 "A"]] 1 [1 4]|[[a "A"]]
-174|merge/default [[a 1] [b 2]] 2 [[1 "A"]] 1 [1 4]|[[a "A"] [b #(none)]]
-175|min-of []|#(none)
-176|min-of [1 2]|1
-177|mixedcase ""|""
-178|mixedcase "aa"|"Aa"
-179|mixedcase "aa bb"|"Aa Bb"
-180|mixedcase "o'brien"|"O'Brien"
-181|munge []|[]
-182|munge/where [[a] [a] [b]] 'a|[[a] [a]]
-183|munge [[a 1] [b 2]]|[[a 1] [b 2]]
-184|munge/part [[a 1]] 1|[[a]]
-185|munge/part [[a 1]] [2 1]|[[1 a]]
-186|munge/part [[a 1]] [1 "Y"]|[[a "Y"]]
-187|munge/where [[a 1]] [even? row/2]|[]
-188|munge/where [[a 1]] [odd? row/2]|[[a 1]]
-189|munge/where [[a 1] [a 2] [b 3]] 'a|[[a 1] [a 2]]
-190|munge/where [[a 1]] [row/1: 0]|[[0 1]]
-191|munge/delete [[a 1] [b 2]] [true]|[]
-192|munge/delete [[a 1] [b 2]] 'a|[[b 2]]
-193|munge/delete [[a 1] [b 2]] [row/1 = 'a]|[[b 2]]
-194|munge/group [[1] [2]] 'count|[[1 1] [2 1]]
-195|munge/group [[1] [2]] 'avg|1.5
-196|munge/group [[1] [2]] 'sum|3
-197|munge/group [[1] [2]] 'min|1
-198|munge/group [[1] [2]] 'max|2
-199|munge/group [[a] [b] [a]] [count > 1]|[[a 2]]
-200|munge/group [[a 1] [a 2] [b 3]] 'avg|[[a 1.5] [b 3]]
-201|munge/group [[a 1] [a 2] [b 3]] 'sum|[[a 3] [b 3]]
-202|munge/group [[a 1] [a 2] [b 3]] 'min|[[a 1] [b 3]]
-203|munge/group [[a 1] [a 2] [b 3]] 'max|[[a 2] [b 3]]
-204|munge/part [[A B] [1 2]] '&A|[[A] [1]]
-205|munge/part next [[A B] [1 2]] '&A|[[1]]
-206|munge/part [[A B] [1 2]] [&A]|[[A] [1]]
-207|munge/part next [[A B] [1 2]] [&A]|[[1]]
-208|munge/where next [[A B] [1 2]] [even? &B]|[[1 2]]
-209|munge/where [[A] [0]] [&A = 0 &A: 1]|[[1]]
-210|oledb %test.xlsx "SELECT * FROM Sheet1"|[["A B" "S1"] ["1" "2"]]
-211|oledb %test.xlsx "SELECT F1 FROM Sheet1"|[["A B"] ["1"]]
-212|oledb %test.accdb "SELECT * FROM Table1"|[["1" "2"] ["3" "4"] ["5" "6"]]
-213|oledb %test.accdb "SELECT A FROM Table1"|[["1"] ["3"] ["5"]]
-214|penult []|#(none)
-215|penult [1]|#(none)
-216|penult [1 2]|1
-217|penult [1 2 3]|2
-218|penult ""|#(none)
-219|penult "1"|#(none)
-220|penult "12"|#"1"
-221|penult "123"|#"2"
-222|write-dsv %a.txt [[1] [2]] read-string %a.txt|"1^/2^/"
-223|read-string %a.txt|"1^/2^/"
-224|read-string #{E97C}|"é|"
-225|read-string %latin1.txt|"Ashley Trüter"
-226|replace-deep [a [a]] make map! [a b]|[b [b]]
-227|rows? ""|0
-228|rows? "a"|1
-229|rows? "a^/"|2
-230|rows? %test.xlsx|2
-231|rows?/sheet %test.xlsx 2|2
-232|sheets? %test.xlsx|["A B" "AB" "A-B"]
-233|split-on "" #","|[""]
-234|split-on "," #","|["" ""]
-235|split-on "a,,b" #","|["a" "" "b"]
-236|split-on " 1 , 2 " ","|["1" "2"]
-237|split-on " 1 -> 2 " "->"|["1" "2"]
-238|split-on "a,b c" make bitset! ", "|["a" "b" "c"]
-239|sqlcmd sn db "select ''"|[]
-240|sqlcmd sn db "select NULL"|[]
-241|sqlcmd sn db "select 1 where 0 = 1"|[]
-242|sqlcmd sn db "select NULL,NULL"|[["" ""]]
-243|sqlcmd sn db "select 1,NULL"|[["1" ""]]
-244|sqlcmd sn db "select NULL,1"|[["" "1"]]
-245|sqlcmd sn db "select 0"|[["0"]]
-246|sqlcmd sn db "select 0,1"|[["0" "1"]]
-247|sqlcmd sn db "select 0,''"|[["0" ""]]
-248|sqlcmd/key sn db "select 0" 1|[[0]]
-249|sqlcmd/headings sn db "select 1 A"|[["A"] ["1"]]
-250|sqlcmd/flat sn db "select 0,1"|["0" "1"]
-251|sqlcmd/flat/key sn db "select 0" 1|[0]
-252|sqlcmd/flat/headings sn db "select 1 A"|["A" "1"]
-253|sqlcmd/identity sn db "INSERT INTO Test VALUES ('A')"|1
-254|sqlite %a.db "select ''"|[]
-255|sqlite %a.db "select NULL"|[]
-256|sqlite %a.db "select 1 where 0 = 1"|[]
-257|sqlite %a.db "select NULL,NULL"|[["" ""]]
-258|sqlite %a.db "select 1,NULL"|[["1" ""]]
-259|sqlite %a.db "select NULL,1"|[["" "1"]]
-260|sqlite %a.db "select 0"|[["0"]]
-261|sqlite %a.db "select 0,1"|[["0" "1"]]
-262|sqlite %a.db "select 0,''"|[["0" ""]]
-263|to-column-alpha 1|"A"
-264|to-column-alpha 27|"AA"
-265|to-column-number 'A|1
-266|to-column-number "aa"|27
-267|to-field-spec [a]|[&a]
-268|to-field-spec ["A B:C"]|[&ABC]
-269|to-string-date "01-02-68"|"2068-02-01"
-270|to-string-date "01-02-76"|"1976-02-01"
-271|to-string-date 1-Feb-2015|"2015-02-01"
-272|to-string-date "20150201"|"2015-02-01"
-273|to-string-date "01/02/2015"|"2015-02-01"
-274|to-string-date "01/02/2015 12:30PM"|"2015-02-01"
-275|to-string-date "Mon 01-02-2015"|"2015-02-01"
-276|to-string-date "Monday 01-02-2015"|"2015-02-01"
-277|to-string-date/mdy "01/02/2015"|"2015-01-02"
-278|to-string-date/ydm "15/02/01"|"2015-01-02"
-279|to-string-date "01-02-2015"|"2015-02-01"
-280|to-string-date/mdy "01-02-2015"|"2015-01-02"
-281|to-string-date/ydm "15-02-01"|"2015-01-02"
-282|to-string-date "41506"|"2013-08-20"
-283|to-string-time 0:00|"00:00:00"
-284|to-string-time/precise 0:00|"00:00:00.000"
-285|to-string-time 1:00|"01:00:00"
-286|to-string-time/precise 1:00:00.001|"01:00:00.001"
-287|to-string-time "013000000"|"01:30:00"
-288|to-string-time "1:00AM"|"01:00:00"
-289|to-string-time "1:00 AM"|"01:00:00"
-290|to-string-time "1:00PM"|"13:00:00"
-291|to-string-time "1:00 PM"|"13:00:00"
-292|to-string-time "0.75"|"18:00:00"
-293|to-string-time "12:30 PM"|"12:30:00"
-294|to-string-time "12:30PM"|"12:30:00"
-295|transpose [[a 1] [b 2] [c 3]]|[[a b c] [1 2 3]]
-296|transpose [[a b c] [1 2 3]]|[[a 1] [b 2] [c 3]]
-297|unzip/only %test.zip %test.txt|#{5265626F6C}
-298|write-dsv %a.txt [] read-string %a.txt|""
-299|write-dsv %a.txt [[]] read-string %a.txt|"^/"
-300|write-dsv %a.csv [['a 1] ['b 2]] read-string %a.csv|"a,1^/b,2^/"
-301|write-dsv %a.txt [['a 1] ['b 2]] read-string %a.txt|"a^-1^/b^-2^/"
-302|write-excel %a.xlsx ["A" [[A B] [1 2]] [5 10]]|%a.xlsx
-303|write-excel/filter %a.xlsx ["A" [[A] [B]] [5]]|%a.xlsx
-304|settings/as-is: true|#(true)
-305|load-dsv {" a ^/ b "}|[[" a ^/ b "]]
+40|deduplicate [["A" "B"] [0 1] [0 2]] '&A|[["A" "B"] [0 2]]
+41|deduplicate [["A" "B"] [0 1] [0 2]] 1|[["A" "B"] [0 2]]
+42|deduplicate/latest [["A" "B"] [0 1] [0 2]] '&A|[["A" "B"] [0 1]]
+43|deduplicate/latest [["A" "B"] [0 1] [0 2]] 1|[["A" "B"] [0 1]]
+44|deduplicate [["" a] ["" b]] 1|[["" a] ["" b]]
+45|deduplicate [[1 a] [1 b]] 1|[[1 b]]
+46|deduplicate/latest [[1 a] [1 b]] 1|[[1 a]]
+47|delimiter? ""|[#"," ""]
+48|delimiter? "a"|[#"," "a"]
+49|delimiter? "^-"|[#"^-" "^-"]
+50|delimiter? "&#124;"|[#"|" "|"]
+51|delimiter? "~"|[#"~" "~"]
+52|delimiter? ";"|[#";" ";"]
+53|delimiter? "a&#124;b,c"|[#"," "a|b,c"]
+54|delta [[1] [2]] [[1]]|[[2]]
+55|dezero ""|""
+56|dezero "0"|""
+57|dezero "10"|"10"
+58|dezero "01"|"1"
+59|dezero "001"|"1"
+60|digit|make bitset! #{000000000000FFC0}
+61|digits? ""|#(none)
+62|digits? "a"|#(none)
+63|digits? "1"|#(true)
+64|discard [["a" ""] ["b" ""]]|[["a"] ["b"]]
+65|distinct [["" ""] [a 1]]|[[a 1]]
+66|distinct [[#(none) #(none)] [a 1]]|[[a 1]]
+67|distinct [[a] [a]]|[[a]]
+68|distinct [[a 1] [a 1]]|[[a 1]]
+69|drop [[a b c] [1 2 3]] '&b|[[a c] [1 3]]
+70|drop [[a b c] [1 2 3]] 2|[[a c] [1 3]]
+71|enblock [1 2 3 4] 1|[[1] [2] [3] [4]]
+72|enblock [1 2 3 4] 2|[[1 2] [3 4]]
+73|enzero "" 1|"0"
+74|enzero "10" 1|"10"
+75|enzero "10" 2|"10"
+76|enzero "10" 3|"010"
+77|excel-cols? data|2
+78|excel-fields? data strings|["A B" "S1"]
+79|excel-first-row data|#{3C726F7720723D223122207370616E73...
+80|excel-info %test.xlsx|[["A B" 2 ["A B" "S1"]] ["AB" 2 ["AB" "S2"]] ["A-B" 2 ["A-B" "S3"]]]
+81|excel-last-row data|#{3C726F7720723D223222207370616E73...
+82|excel-load-sheet %test.xlsx 1|#{3C3F786D6C2076657273696F6E3D2231...
+83|excel-load-strings %test.xlsx|["AB" "A B" "A-B" "S1" "S2" "S3"]
+84|excel-pick-row data 2|#{3C726F7720723D223222207370616E73...
+85|excel-row-numbers? data|#(true)
+86|excel-rows? data|2
+87|excel? %test.xlsx|#(true)
+88|excel? %a.txt|#(none)
+89|excel? to-binary "<?xml"|#(true)
+90|excel? "Text"|#(false)
+91|export []|[]
+92|export [distinct]|[distinct]
+93|export [cols? rows?]|[cols? rows?]
+94|fields? %a.csv|["F1" "F2"]
+95|fields? %test.xlsx|["A B" "S1"]
+96|fields?/sheet %test.xlsx 1|["A B" "S1"]
+97|fields?/sheet %test.xlsx 2|["AB" "S2"]
+98|fields?/sheet %test.xlsx 3|["A-B" "S3"]
+99|fields? ""|[]
+100|fields? "A,B,C^/1,2,3"|["A" "B" "C"]
+101|fields? "A,B,^/1,2,3"|["A" "B" ""]
+102|fields? "A^/1,2,3"|["1" "2" "3"]
+103|fields? ","|["" ""]
+104|fields? "a,b"|["a" "b"]
+105|fields? "^/a,b"|["a" "b"]
+106|fields? "a:b"|["a:b"]
+107|fields? {"a","b"}|["a" "b"]
+108|fields? {"a" ,"b"}|["a" "b"]
+109|fields? {"a", "b"}|["a" "b"]
+110|fields?/with "a:b" #":"|["a" "b"]
+111|filename? %a.txt|%a.txt
+112|filename? %a/b.txt|%b.txt
+113|filename? %a/b.txt|%b.txt
+114|flatten []|[]
+115|flatten [[a] [b]]|[a b]
+116|flatten [[a 1] [b 2]]|[a 1 b 2]
+117|html-decode "A &amp; B"|"A & B"
+118|html-encode "A & B"|"A &amp; B"
+119|letter|make bitset! #{00000000000000007FFFFFE07FFFFFE0}
+120|letters? ""|#(true)
+121|letters? "a"|#(true)
+122|letters? "1"|#(false)
+123|list []|[]
+124|list [[a] [b]]|[[a] [b]]
+125|load-dsv ""|[]
+126|load-dsv ","|[["" ""]]
+127|load-dsv {" a ^/ b ",AB}|[["a b" "AB"]]
+128|load-dsv "a,"|[["a" ""]]
+129|load-dsv {"a" ,"b"}|[["a" "b"]]
+130|load-dsv {"a", "b"}|[["a" "b"]]
+131|load-dsv "a,NULL,b"|[["a" "" "b"]]
+132|load-dsv "a,1^/b,2"|[["a" "1"] ["b" "2"]]
+133|load-dsv "a:b,c:d"|[["a:b" "c:d"]]
+134|load-dsv {"a"&#124;"b"}|[[{"a"} {"b"}]]
+135|load-dsv/csv {"a"&#124;"b"}|[["a" "b"]]
+136|load-dsv/part "a,b,c" 1|[["a"]]
+137|load-dsv/part "a,b,c" [1]|[["a"]]
+138|load-dsv/part "a,b,c" [3 1]|[["c" "a"]]
+139|load-dsv/part "a,b,c" [1 "Y"]|[["a" "Y"]]
+140|load-dsv/part %a.csv '&F1|[["F1"] ["1"]]
+141|load-dsv/where "a,1^/b,2" [row/1 = "a"]|[["a" "1"]]
+142|load-dsv/where "a,1^/b,2^/c,3" [line = 2]|[["b" "2"]]
+143|load-dsv/where %a.csv [&F1 = "1"]|[["1" "2"]]
+144|load-dsv/where "A,B^/0,1" [digits? &A &A: to integer! &A]|[[0 "1"]]
+145|load-dsv/with "a:b" #":"|[["a" "b"]]
+146|load-dsv/flat "A,B"|["A" "B"]
+147|load-dsv/flat "A,B^/C,D"|["A" "B" "C" "D"]
+148|load-dsv/ignore "a^/b,c"|[["b" "c"]]
+149|load-xml %test.xlsx|[["A B" "S1"] ["1" "2"]]
+150|load-xml/sheet %test.xlsx 2|[["AB" "S2"] ["1" "2"]]
+151|load-xml/part %test.xlsx '&S1|[["S1"] ["2"]]
+152|load-xml/where %test.xlsx [&S1 = "2"]|[["1" "2"]]
+153|load-xml/flat %test.xlsx|["A B" "S1" "1" "2"]
+154|max-of []|#(none)
+155|max-of [1 2]|2
+156|merge [] 1 [] 1 [1]|[]
+157|merge [[a 1] [b 2]] 2 [[1 "A"]] 1 [1 4]|[[a "A"]]
+158|merge [[a 1]] 2 [[2 1] [1 "A"]] 1 [1 4]|[[a "A"]]
+159|merge/default [[a 1] [b 2]] 2 [[1 "A"]] 1 [1 4]|[[a "A"] [b #(none)]]
+160|min-of []|#(none)
+161|min-of [1 2]|1
+162|mixedcase ""|""
+163|mixedcase "aa"|"Aa"
+164|mixedcase "aa bb"|"Aa Bb"
+165|mixedcase "o'brien"|"O'Brien"
+166|munge []|[]
+167|munge/where [[a] [a] [b]] 'a|[[a] [a]]
+168|munge [[a 1] [b 2]]|[[a 1] [b 2]]
+169|munge/part [[a 1]] 1|[[a]]
+170|munge/part [[a 1]] [2 1]|[[1 a]]
+171|munge/part [[a 1]] [1 "Y"]|[[a "Y"]]
+172|munge/where [[a 1]] [even? row/2]|[]
+173|munge/where [[a 1]] [odd? row/2]|[[a 1]]
+174|munge/where [[a 1] [a 2] [b 3]] 'a|[[a 1] [a 2]]
+175|munge/where [[a 1]] [row/1: 0]|[[0 1]]
+176|munge/delete [[a 1] [b 2]] [true]|[]
+177|munge/delete [[a 1] [b 2]] 'a|[[b 2]]
+178|munge/delete [[a 1] [b 2]] [row/1 = 'a]|[[b 2]]
+179|munge/group [[1] [2]] 'count|[[1 1] [2 1]]
+180|munge/group [[1] [2]] 'avg|1.5
+181|munge/group [[1] [2]] 'sum|3
+182|munge/group [[1] [2]] 'min|1
+183|munge/group [[1] [2]] 'max|2
+184|munge/group [[a] [b] [a]] [count > 1]|[[a 2]]
+185|munge/group [[a 1] [a 2] [b 3]] 'avg|[[a 1.5] [b 3]]
+186|munge/group [[a 1] [a 2] [b 3]] 'sum|[[a 3] [b 3]]
+187|munge/group [[a 1] [a 2] [b 3]] 'min|[[a 1] [b 3]]
+188|munge/group [[a 1] [a 2] [b 3]] 'max|[[a 2] [b 3]]
+189|munge/part [[A B] [1 2]] '&A|[[A] [1]]
+190|munge/part next [[A B] [1 2]] '&A|[[1]]
+191|munge/part [[A B] [1 2]] [&A]|[[A] [1]]
+192|munge/part next [[A B] [1 2]] [&A]|[[1]]
+193|munge/where next [[A B] [1 2]] [even? &B]|[[1 2]]
+194|munge/where [[A] [0]] [&A = 0 &A: 1]|[[1]]
+195|oledb %test.xlsx "SELECT * FROM Sheet1"|[["A B" "S1"] ["1" "2"]]
+196|oledb %test.xlsx "SELECT F1 FROM Sheet1"|[["A B"] ["1"]]
+197|oledb %test.accdb "SELECT * FROM Table1"|[["1" "2"] ["3" "4"] ["5" "6"]]
+198|oledb %test.accdb "SELECT A FROM Table1"|[["1"] ["3"] ["5"]]
+199|penult []|#(none)
+200|penult [1]|#(none)
+201|penult [1 2]|1
+202|penult [1 2 3]|2
+203|penult ""|#(none)
+204|penult "1"|#(none)
+205|penult "12"|#"1"
+206|penult "123"|#"2"
+207|write-dsv %a.txt [[1] [2]] read-string %a.txt|"1^/2^/"
+208|read-string %a.txt|"1^/2^/"
+209|read-string #{E97C}|"é|"
+210|read-string %latin1.txt|"Ashley Trüter"
+211|replace-deep [a [a]] make map! [a b]|[b [b]]
+212|rows? ""|0
+213|rows? "a"|1
+214|rows? "a^/"|2
+215|rows? %test.xlsx|2
+216|rows?/sheet %test.xlsx 2|2
+217|sheets? %test.xlsx|["A B" "AB" "A-B"]
+218|split-on "" #","|[""]
+219|split-on "," #","|["" ""]
+220|split-on "a,,b" #","|["a" "" "b"]
+221|split-on " 1 , 2 " ","|["1" "2"]
+222|split-on " 1 -> 2 " "->"|["1" "2"]
+223|split-on "a,b c" make bitset! ", "|["a" "b" "c"]
+224|sqlcmd sn db "select ''"|[]
+225|sqlcmd sn db "select NULL"|[[""]]
+226|sqlcmd sn db "select 1 where 0 = 1"|[]
+227|sqlcmd sn db "select NULL,NULL"|[["" ""]]
+228|sqlcmd sn db "select 1,NULL"|[["1" ""]]
+229|sqlcmd sn db "select NULL,1"|[["" "1"]]
+230|sqlcmd sn db "select 0"|[["0"]]
+231|sqlcmd sn db "select 0,1"|[["0" "1"]]
+232|sqlcmd sn db "select 0,''"|[["0" ""]]
+233|sqlcmd/key sn db "select 0" 1|[[0]]
+234|sqlcmd/headings sn db "select 1 A"|[["A"] ["1"]]
+235|sqlcmd/flat sn db "select 0,1"|["0" "1"]
+236|sqlcmd/flat/key sn db "select 0" 1|[0]
+237|sqlcmd/flat/headings sn db "select 1 A"|["A" "1"]
+238|sqlcmd/identity sn db "INSERT INTO Test VALUES ('A')"|1
+239|to-column-alpha 1|"A"
+240|to-column-alpha 27|"AA"
+241|to-column-number 'A|1
+242|to-column-number "aa"|27
+243|to-field-spec [a]|[&a]
+244|to-field-spec ["A B:C"]|[&ABC]
+245|to-string-date "01-02-68"|"2068-02-01"
+246|to-string-date "01-02-76"|"1976-02-01"
+247|to-string-date 1-Feb-2015|"2015-02-01"
+248|to-string-date "20150201"|"2015-02-01"
+249|to-string-date "01/02/2015"|"2015-02-01"
+250|to-string-date "01/02/2015 12:30PM"|"2015-02-01"
+251|to-string-date "Mon 01-02-2015"|"2015-02-01"
+252|to-string-date "Monday 01-02-2015"|"2015-02-01"
+253|to-string-date/mdy "01/02/2015"|"2015-01-02"
+254|to-string-date/ydm "15/02/01"|"2015-01-02"
+255|to-string-date "01-02-2015"|"2015-02-01"
+256|to-string-date/mdy "01-02-2015"|"2015-01-02"
+257|to-string-date/ydm "15-02-01"|"2015-01-02"
+258|to-string-date "41506"|"2013-08-20"
+259|to-string-time 0:00|"00:00:00"
+260|to-string-time/precise 0:00|"00:00:00.000"
+261|to-string-time 1:00|"01:00:00"
+262|to-string-time/precise 1:00:00.001|"01:00:00.001"
+263|to-string-time "013000000"|"01:30:00"
+264|to-string-time "1:00AM"|"01:00:00"
+265|to-string-time "1:00 AM"|"01:00:00"
+266|to-string-time "1:00PM"|"13:00:00"
+267|to-string-time "1:00 PM"|"13:00:00"
+268|to-string-time "0.75"|"18:00:00"
+269|to-string-time "12:30 PM"|"12:30:00"
+270|to-string-time "12:30PM"|"12:30:00"
+271|transpose [[a 1] [b 2] [c 3]]|[[a b c] [1 2 3]]
+272|transpose [[a b c] [1 2 3]]|[[a 1] [b 2] [c 3]]
+273|trim-rows [[""]]|[[]]
+274|trim-rows [["A"]]|[["A"]]
+275|trim-rows [["A" ""]]|[["A"]]
+276|trim-rows [["" "A"]]|[["A"]]
+277|trim-rows [["" "A" ""]]|[["A"]]
+278|unzip/only %test.zip %test.txt|#{5265626F6C}
+279|write-dsv %a.txt [] read-string %a.txt|""
+280|write-dsv %a.txt [[]] read-string %a.txt|"^/"
+281|write-dsv %a.csv [['a 1] ['b 2]] read-string %a.csv|"a,1^/b,2^/"
+282|write-dsv %a.txt [['a 1] ['b 2]] read-string %a.txt|"a^-1^/b^-2^/"
+283|write-excel %a.xlsx ["A" [[A B] [1 2]] [5 10]]|%a.xlsx
+284|write-excel/filter %a.xlsx ["A" [[A] [B]] [5]]|%a.xlsx
+285|settings/as-is: true|#(true)
+286|load-dsv {" a ^/ b ",AB}|[[" a ^/ b " "AB"]]

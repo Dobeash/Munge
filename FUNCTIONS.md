@@ -5,7 +5,7 @@
 
 	DESCRIPTION:
 	  Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM). 
-	  AS-DATE is a #(function!) value.
+	  AS-DATE is a function! value.
 
 	ARGUMENTS:
 	  string        [string!]  
@@ -20,7 +20,7 @@
 
 	DESCRIPTION:
 	  Convert a string time to an HH:MM string (does not handle Excel or HHMMSS). 
-	  AS-TIME is a #(function!) value.
+	  AS-TIME is a function! value.
 
 	ARGUMENTS:
 	  time          [string!]  
@@ -32,7 +32,7 @@
 
 	DESCRIPTION:
 	  Call OS command returning STDOUT. 
-	  CALL-OUT is a #(function!) value.
+	  CALL-OUT is a function! value.
 
 	ARGUMENTS:
 	  cmd           [string!]  
@@ -44,7 +44,7 @@
 
 	DESCRIPTION:
 	  Verify data structure. 
-	  CHECK is a #(function!) value.
+	  CHECK is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -60,7 +60,7 @@
 
 	DESCRIPTION:
 	  Number of columns in a delimited file or string. 
-	  COLS? is a #(function!) value.
+	  COLS? is a function! value.
 
 	ARGUMENTS:
 	  data          [file! url! string!] 
@@ -78,7 +78,7 @@
 
 	DESCRIPTION:
 	  Remove earliest occurrences of duplicate non-empty key field. 
-	  DEDUPLICATE is a #(function!) value.
+	  DEDUPLICATE is a function! value.
 
 	ARGUMENTS:
 	  blk           [block!]   
@@ -93,8 +93,8 @@
 	  DELIMITER? data
 
 	DESCRIPTION:
-	  Probable delimiter, with priority given to comma, tab, bar, tilde, then semi-colon. 
-	  DELIMITER? is a #(function!) value.
+	  Probable delimiter, with priority given to tab, comma, semi-colon, bar, then tilde. 
+	  DELIMITER? is a function! value.
 
 	ARGUMENTS:
 	  data          [file! url! string!] 
@@ -106,7 +106,7 @@
 
 	DESCRIPTION:
 	  Return new rows not present in old. 
-	  DELTA is a #(function!) value.
+	  DELTA is a function! value.
 
 	ARGUMENTS:
 	  new           [block!]   
@@ -119,7 +119,7 @@
 
 	DESCRIPTION:
 	  Remove leading zeroes from string. 
-	  DEZERO is a #(function!) value.
+	  DEZERO is a function! value.
 
 	ARGUMENTS:
 	  string        [string!]  
@@ -131,7 +131,7 @@
 
 	DESCRIPTION:
 	  Returns TRUE if data not empty and only contains digits. 
-	  DIGITS? is a #(function!) value.
+	  DIGITS? is a function! value.
 
 	ARGUMENTS:
 	  data          [string! binary!] 
@@ -143,25 +143,13 @@
 
 	DESCRIPTION:
 	  Remove empty columns (ignore headings). 
-	  DISCARD is a #(function!) value.
+	  DISCARD is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
 
 	REFINEMENTS:
 	  /verbose      
-
-### discard-last
-
-	USAGE:
-	  DISCARD-LAST data
-
-	DESCRIPTION:
-	  Remove empty trailing column(s). 
-	  DISCARD-LAST is a #(function!) value.
-
-	ARGUMENTS:
-	  data          [block!]   
 
 ### distinct
 
@@ -170,7 +158,7 @@
 
 	DESCRIPTION:
 	  Remove duplicate and empty rows. 
-	  DISTINCT is a #(function!) value.
+	  DISTINCT is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -182,7 +170,7 @@
 
 	DESCRIPTION:
 	  Remove column. 
-	  DROP is a #(function!) value.
+	  DROP is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -195,7 +183,7 @@
 
 	DESCRIPTION:
 	  Convert a block of values to a block of row blocks. 
-	  ENBLOCK is a #(function!) value.
+	  ENBLOCK is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -208,7 +196,7 @@
 
 	DESCRIPTION:
 	  Add leading zeroes to a string. 
-	  ENZERO is a #(function!) value.
+	  ENZERO is a function! value.
 
 	ARGUMENTS:
 	  string        [string!]  
@@ -221,7 +209,7 @@
 
 	DESCRIPTION:
 	  Number of columns in sheet. 
-	  EXCEL-COLS? is a #(function!) value.
+	  EXCEL-COLS? is a function! value.
 
 	ARGUMENTS:
 	  sheet         [binary!]  
@@ -233,7 +221,7 @@
 
 	DESCRIPTION:
 	  Column names of sheet. 
-	  EXCEL-FIELDS? is a #(function!) value.
+	  EXCEL-FIELDS? is a function! value.
 
 	ARGUMENTS:
 	  sheet         [binary!]  
@@ -246,7 +234,7 @@
 
 	DESCRIPTION:
 	  First binary row of a sheet. 
-	  EXCEL-FIRST-ROW is a #(function!) value.
+	  EXCEL-FIRST-ROW is a function! value.
 
 	ARGUMENTS:
 	  sheet         [binary!]  
@@ -258,7 +246,7 @@
 
 	DESCRIPTION:
 	  Name, rows, and fields of each sheet. 
-	  EXCEL-INFO is a #(function!) value.
+	  EXCEL-INFO is a function! value.
 
 	ARGUMENTS:
 	  file          [file!]    
@@ -270,7 +258,7 @@
 
 	DESCRIPTION:
 	  Last binary row of a sheet. 
-	  EXCEL-LAST-ROW is a #(function!) value.
+	  EXCEL-LAST-ROW is a function! value.
 
 	ARGUMENTS:
 	  sheet         [binary!]  
@@ -282,7 +270,7 @@
 
 	DESCRIPTION:
 	  Loads binary worksheet. 
-	  EXCEL-LOAD-SHEET is a #(function!) value.
+	  EXCEL-LOAD-SHEET is a function! value.
 
 	ARGUMENTS:
 	  file          [file!]    
@@ -295,7 +283,7 @@
 
 	DESCRIPTION:
 	  Loads shared strings. 
-	  EXCEL-LOAD-STRINGS is a #(function!) value.
+	  EXCEL-LOAD-STRINGS is a function! value.
 
 	ARGUMENTS:
 	  file          [file!]    
@@ -307,11 +295,23 @@
 
 	DESCRIPTION:
 	  First binary row of a sheet. 
-	  EXCEL-PICK-ROW is a #(function!) value.
+	  EXCEL-PICK-ROW is a function! value.
 
 	ARGUMENTS:
 	  sheet         [binary!]  
 	  index         [integer!] 
+
+### excel-row-numbers?
+
+	USAGE:
+	  EXCEL-ROW-NUMBERS? sheet
+
+	DESCRIPTION:
+	  Row number present in row tag. 
+	  EXCEL-ROW-NUMBERS? is a function! value.
+
+	ARGUMENTS:
+	  sheet         [binary!]  
 
 ### excel-rows?
 
@@ -320,7 +320,7 @@
 
 	DESCRIPTION:
 	  Number of rows in sheet. 
-	  EXCEL-ROWS? is a #(function!) value.
+	  EXCEL-ROWS? is a function! value.
 
 	ARGUMENTS:
 	  sheet         [binary!]  
@@ -332,7 +332,7 @@
 
 	DESCRIPTION:
 	  Returns TRUE if file is Excel or worksheet is XML. 
-	  EXCEL? is a #(function!) value.
+	  EXCEL? is a function! value.
 
 	ARGUMENTS:
 	  data          [file! url! binary! string!] 
@@ -344,7 +344,7 @@
 
 	DESCRIPTION:
 	  Export words to global context. 
-	  EXPORT is a #(function!) value.
+	  EXPORT is a function! value.
 
 	ARGUMENTS:
 	  words         [block!]   Words to export.
@@ -356,7 +356,7 @@
 
 	DESCRIPTION:
 	  Column names in a delimited file. 
-	  FIELDS? is a #(function!) value.
+	  FIELDS? is a function! value.
 
 	ARGUMENTS:
 	  data          [file! url! string!] 
@@ -374,34 +374,10 @@
 
 	DESCRIPTION:
 	  Return the file name of a path or url. 
-	  FILENAME? is a #(function!) value.
+	  FILENAME? is a function! value.
 
 	ARGUMENTS:
 	  path          [file! url!] 
-
-### first-line
-
-	USAGE:
-	  FIRST-LINE data
-
-	DESCRIPTION:
-	  Returns the first non-empty line of a file. 
-	  FIRST-LINE is a #(function!) value.
-
-	ARGUMENTS:
-	  data          [file! url! string! binary!] 
-
-### first-value
-
-	USAGE:
-	  FIRST-VALUE blk
-
-	DESCRIPTION:
-	  Returns the first non-empty value of a block. 
-	  FIRST-VALUE is a #(function!) value.
-
-	ARGUMENTS:
-	  blk           [block!]   
 
 ### flatten
 
@@ -410,7 +386,7 @@
 
 	DESCRIPTION:
 	  Flatten nested block(s). 
-	  FLATTEN is a #(function!) value.
+	  FLATTEN is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -422,7 +398,7 @@
 
 	DESCRIPTION:
 	  Decode HTML Entities. 
-	  HTML-DECODE is a #(function!) value.
+	  HTML-DECODE is a function! value.
 
 	ARGUMENTS:
 	  string        [string!]  
@@ -434,22 +410,10 @@
 
 	DESCRIPTION:
 	  Encode HTML Entities. 
-	  HTML-ENCODE is a #(function!) value.
+	  HTML-ENCODE is a function! value.
 
 	ARGUMENTS:
 	  string        [string!]  
-
-### last-line
-
-	USAGE:
-	  LAST-LINE data
-
-	DESCRIPTION:
-	  Returns the last non-empty line of a file. 
-	  LAST-LINE is a #(function!) value.
-
-	ARGUMENTS:
-	  data          [file! url! string!] 
 
 ### letters?
 
@@ -458,7 +422,7 @@
 
 	DESCRIPTION:
 	  Returns TRUE if data only contains letters. 
-	  LETTERS? is a #(function!) value.
+	  LETTERS? is a function! value.
 
 	ARGUMENTS:
 	  data          [string! binary!] 
@@ -470,7 +434,7 @@
 
 	DESCRIPTION:
 	  Uses settings to set the new-line marker. 
-	  LIST is a #(function!) value.
+	  LIST is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -482,7 +446,7 @@
 
 	DESCRIPTION:
 	  Parses delimiter-separated values into row blocks. 
-	  LOAD-DSV is a #(function!) value.
+	  LOAD-DSV is a function! value.
 
 	ARGUMENTS:
 	  source        [file! url! binary! string!] 
@@ -498,23 +462,6 @@
 	  /csv          Parse as CSV even though not comma-delimited
 	  /flat         Flatten rows
 
-### load-fixed
-
-	USAGE:
-	  LOAD-FIXED file widths
-
-	DESCRIPTION:
-	  Loads fixed-width values from a file. 
-	  LOAD-FIXED is a #(function!) value.
-
-	ARGUMENTS:
-	  file          [file! url!] 
-	  widths        [block!]   
-
-	REFINEMENTS:
-	  /part         
-	    columns      [integer! block!] 
-
 ### load-xml
 
 	USAGE:
@@ -522,7 +469,7 @@
 
 	DESCRIPTION:
 	  Loads an Office XML sheet. 
-	  LOAD-XML is a #(function!) value.
+	  LOAD-XML is a function! value.
 
 	ARGUMENTS:
 	  file          [file!]    
@@ -543,7 +490,7 @@
 
 	DESCRIPTION:
 	  Returns the largest value in a series. 
-	  MAX-OF is a #(function!) value.
+	  MAX-OF is a function! value.
 
 	ARGUMENTS:
 	  series        [series!]  Series to search.
@@ -555,7 +502,7 @@
 
 	DESCRIPTION:
 	  Join outer block to inner block on primary key. 
-	  MERGE is a #(function!) value.
+	  MERGE is a function! value.
 
 	ARGUMENTS:
 	  outer         [block!]   Outer block.
@@ -574,7 +521,7 @@
 
 	DESCRIPTION:
 	  Returns the smallest value in a series. 
-	  MIN-OF is a #(function!) value.
+	  MIN-OF is a function! value.
 
 	ARGUMENTS:
 	  series        [series!]  Series to search.
@@ -586,7 +533,7 @@
 
 	DESCRIPTION:
 	  Converts string of characters to mixedcase. 
-	  MIXEDCASE is a #(function!) value.
+	  MIXEDCASE is a function! value.
 
 	ARGUMENTS:
 	  string        [string!]  
@@ -598,7 +545,7 @@
 
 	DESCRIPTION:
 	  Load and / or manipulate a block of tabular (column and row) values. 
-	  MUNGE is a #(function!) value.
+	  MUNGE is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -622,7 +569,7 @@
 
 	DESCRIPTION:
 	  Execute an OLEDB statement. 
-	  OLEDB is a #(function!) value.
+	  OLEDB is a function! value.
 
 	ARGUMENTS:
 	  file          [file! url!] 
@@ -635,7 +582,7 @@
 
 	DESCRIPTION:
 	  Returns the second last value of a series. 
-	  PENULT is a #(function!) value.
+	  PENULT is a function! value.
 
 	ARGUMENTS:
 	  series        [series!]  
@@ -647,7 +594,7 @@
 
 	DESCRIPTION:
 	  Read string from a text file. 
-	  READ-STRING is a #(function!) value.
+	  READ-STRING is a function! value.
 
 	ARGUMENTS:
 	  source        [file! url! binary!] 
@@ -659,7 +606,7 @@
 
 	DESCRIPTION:
 	  Replaces all occurrences of search values with new values in a block or nested block. 
-	  REPLACE-DEEP is a #(function!) value.
+	  REPLACE-DEEP is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   Block to replace within (modified).
@@ -672,7 +619,7 @@
 
 	DESCRIPTION:
 	  Number of rows in a delimited file or string. 
-	  ROWS? is a #(function!) value.
+	  ROWS? is a function! value.
 
 	ARGUMENTS:
 	  data          [file! url! string!] 
@@ -688,7 +635,7 @@
 
 	DESCRIPTION:
 	  Excel sheet names. 
-	  SHEETS? is a #(function!) value.
+	  SHEETS? is a function! value.
 
 	ARGUMENTS:
 	  file          [file! url!] 
@@ -700,7 +647,7 @@
 
 	DESCRIPTION:
 	  Split a series into pieces by delimiter. 
-	  SPLIT-ON is a #(function!) value.
+	  SPLIT-ON is a function! value.
 
 	ARGUMENTS:
 	  series        [series!]  
@@ -713,10 +660,10 @@
 
 	DESCRIPTION:
 	  Execute a SQL Server statement. 
-	  SQLCMD is a #(function!) value.
+	  SQLCMD is a function! value.
 
 	ARGUMENTS:
-	  server        [string!]  
+	  server        [string!]  Username/Password if localhost.
 	  database      [string!]  
 	  statement     [string!]  
 
@@ -728,19 +675,6 @@
 	  /flat         Flatten rows
 	  /identity     
 
-### sqlite
-
-	USAGE:
-	  SQLITE database statement
-
-	DESCRIPTION:
-	  Execute a SQLite statement. 
-	  SQLITE is a #(function!) value.
-
-	ARGUMENTS:
-	  database      [file! url!] 
-	  statement     [string!]  
-
 ### to-column-alpha
 
 	USAGE:
@@ -748,7 +682,7 @@
 
 	DESCRIPTION:
 	  Convert numeric column reference to an alpha column reference. 
-	  TO-COLUMN-ALPHA is a #(function!) value.
+	  TO-COLUMN-ALPHA is a function! value.
 
 	ARGUMENTS:
 	  number        [integer!] Column number between 1 and 702.
@@ -760,7 +694,7 @@
 
 	DESCRIPTION:
 	  Convert alpha column reference to a numeric column reference. 
-	  TO-COLUMN-NUMBER is a #(function!) value.
+	  TO-COLUMN-NUMBER is a function! value.
 
 	ARGUMENTS:
 	  alpha         [word! string! char!] 
@@ -772,7 +706,7 @@
 
 	DESCRIPTION:
 	  Convert field strings to words. 
-	  TO-FIELD-SPEC is a #(function!) value.
+	  TO-FIELD-SPEC is a function! value.
 
 	ARGUMENTS:
 	  fields        [block!]   
@@ -784,7 +718,7 @@
 
 	DESCRIPTION:
 	  Convert a string or Rebol date to a YYYY-MM-DD string. 
-	  TO-STRING-DATE is a #(function!) value.
+	  TO-STRING-DATE is a function! value.
 
 	ARGUMENTS:
 	  date          [string! date!] 
@@ -800,7 +734,7 @@
 
 	DESCRIPTION:
 	  Convert a string or Rebol time to a HH:MM:SS string. 
-	  TO-STRING-TIME is a #(function!) value.
+	  TO-STRING-TIME is a function! value.
 
 	ARGUMENTS:
 	  time          [string! date! time!] 
@@ -816,7 +750,19 @@
 
 	DESCRIPTION:
 	  Rotate data from rows to columns or vice versa. 
-	  TRANSPOSE is a #(function!) value.
+	  TRANSPOSE is a function! value.
+
+	ARGUMENTS:
+	  data          [block!]   
+
+### trim-rows
+
+	USAGE:
+	  TRIM-ROWS data
+
+	DESCRIPTION:
+	  Remove empty trailing column(s) and leading column(s). 
+	  TRIM-ROWS is a function! value.
 
 	ARGUMENTS:
 	  data          [block!]   
@@ -828,7 +774,7 @@
 
 	DESCRIPTION:
 	  Decompresses file(s) from archive. 
-	  UNZIP is a #(function!) value.
+	  UNZIP is a function! value.
 
 	ARGUMENTS:
 	  source        [file! url!] 
@@ -844,7 +790,7 @@
 
 	DESCRIPTION:
 	  Write block(s) of values to a delimited text file. 
-	  WRITE-DSV is a #(function!) value.
+	  WRITE-DSV is a function! value.
 
 	ARGUMENTS:
 	  file          [file! url!] Csv or tab-delimited text file.
@@ -860,7 +806,7 @@
 
 	DESCRIPTION:
 	  Write block(s) of values to an Excel file. 
-	  WRITE-EXCEL is a #(function!) value.
+	  WRITE-EXCEL is a function! value.
 
 	ARGUMENTS:
 	  file          [file! url!] 
@@ -868,4 +814,3 @@
 
 	REFINEMENTS:
 	  /filter       Add auto filter
-

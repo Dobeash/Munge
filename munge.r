@@ -1,12 +1,12 @@
 Rebol [
 	Title:		"Munge functions"
 	Owner:		"Ashley G Truter"
-	Version:	3.1.3
-	Date:		12-Feb-2025
+	Version:	3.1.4
+	Date:		15-Aug-2025
 	Purpose:	"Extract and manipulate tabular values in blocks, delimited files, and database tables."
 	Licence:	"MIT. Free for both commercial and non-commercial use."
 	Tested: {
-		Rebol3/Core 3.18.0	github.com/Oldes/Rebol3
+		Rebol3/Core 3.19.0	github.com/Oldes/Rebol3
 	}
 	Usage: {
 		as-date				Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
@@ -15,13 +15,12 @@ Rebol [
 		check				Verify data structure.
 		cols?				Number of columns in a delimited file or string.
 		deduplicate			Remove earliest occurrences of duplicate non-empty key field.
-		delimiter?			Probable delimiter, with priority given to comma, tab, bar, tilde, then semi-colon.
+		delimiter?			Probable delimiter, with priority given to tab, comma, semi-colon, bar, then tilde.
 		delta				Return new rows not present in old.
 		dezero				Remove leading zeroes from string.
 		digit				DIGIT is a bitset of value: make bitset! #{000000000000FFC0}
 		digits?				Returns TRUE if data not empty and only contains digits.
 		discard				Remove empty columns (ignore headings).
-		discard-last		Remove empty trailing column(s).
 		distinct			Remove duplicate and empty rows.
 		drop				Remove column.
 		enblock				Convert a block of values to a block of row blocks.
@@ -34,22 +33,19 @@ Rebol [
 		excel-load-sheet	Loads binary worksheet.
 		excel-load-strings	Loads shared strings.
 		excel-pick-row		First binary row of a sheet.
+		excel-row-numbers?	Row number present in row tag.
 		excel-rows?			Number of rows in sheet.
 		excel?				Returns TRUE if file is Excel or worksheet is XML.
 		export				Export words to global context.
 		fields?				Column names in a delimited file.
 		filename?			Return the file name of a path or url.
-		first-line			Returns the first non-empty line of a file.
-		first-value			Returns the first non-empty value of a block.
 		flatten				Flatten nested block(s).
 		html-decode			Decode HTML Entities.
 		html-encode			Encode HTML Entities.
-		last-line			Returns the last non-empty line of a file.
 		letter				LETTER is a bitset of value: make bitset! #{00000000000000007FFFFFE07FFFFFE0}
 		letters?			Returns TRUE if data only contains letters.
 		list				Uses settings to set the new-line marker.
 		load-dsv			Parses delimiter-separated values into row blocks.
-		load-fixed			Loads fixed-width values from a file.
 		load-xml			Loads an Office XML sheet.
 		max-of				Returns the largest value in a series.
 		merge				Join outer block to inner block on primary key.
@@ -64,13 +60,13 @@ Rebol [
 		sheets?				Excel sheet names.
 		split-on			Split a series into pieces by delimiter.
 		sqlcmd				Execute a SQL Server statement.
-		sqlite				Execute a SQLite statement.
 		to-column-alpha		Convert numeric column reference to an alpha column reference.
 		to-column-number	Convert alpha column reference to a numeric column reference.
 		to-field-spec		Convert field strings to words.
 		to-string-date		Convert a string or Rebol date to a YYYY-MM-DD string.
 		to-string-time		Convert a string or Rebol time to a HH:MM:SS string.
 		transpose			Rotate data from rows to columns or vice versa.
+		trim-rows			Remove empty trailing column(s) and leading column(s).
 		unzip				Decompresses file(s) from archive.
 		write-dsv			Write block(s) of values to a delimited text file.
 		write-excel			Write block(s) of values to an Excel file.
@@ -233,13 +229,23 @@ ctx-munge: context [
 				excel-cols? excel-load-sheet data any [number 1]
 			]
 		] [
-			data: first-line data
-			delimiter: any [delimiter delimiter? data]
-			length? either find data {"} [
-				load-dsv/flat/ignore/with/csv data delimiter
-			] [
-				either empty? data [make block! 0] [split-on data delimiter]
+			data: either string? data [copy/part data 4096] [read/string/part data 4096]
+			unless with [
+				set [delimiter data] delimiter? data
 			]
+			cols: 0
+			foreach line split-lines data [
+				cols: length? either find line {"} [
+					load-dsv/flat/ignore/with/csv line delimiter
+				] [
+					either empty? line [make block! 0] [split-on line delimiter]
+				]
+				all [
+					cols >= settings/threshold
+					break
+				]
+			]
+			cols
 		] all [settings/console settings/exited]
 	]
 
@@ -280,17 +286,26 @@ ctx-munge: context [
 	]
 
 	delimiter?: function [
-		"Probable delimiter, with priority given to comma, tab, bar, tilde, then semi-colon."
+		"Probable delimiter, with priority given to tab, comma, semi-colon, bar, then tilde."
 		data [file! url! string!]
 	] [
-		data: copy first-line data
-		last sort/skip reduce [
-			subtract length? data length? trim/with data #";" #";"
-			subtract length? data length? trim/with data #"~" #"~"
-			subtract length? data length? trim/with data #"|" #"|"
-			subtract length? data length? trim/with data tab tab
-			subtract length? data length? trim/with data #"," #","
-		] 2
+		blk: reduce [#"," 1]
+		row: copy ""
+		foreach line split-lines either string? data [copy/part data 4096] [read/string/part data 4096] [
+			row: copy line
+			blk: sort/skip/compare reduce [
+				#";"  subtract length? line length? trim/with line #";"
+				#"~"  subtract length? line length? trim/with line #"~"
+				#"|"  subtract length? line length? trim/with line #"|"
+				#"^-" subtract length? line length? trim/with line #"^-"
+				#","  subtract length? line length? trim/with line #","
+			] 2 2
+			all [
+				(last blk) >= (settings/threshold - 1)
+				break
+			]
+		]
+		reduce [penult blk row]
 	]
 
 	delta: function [
@@ -346,30 +361,6 @@ ctx-munge: context [
 			foreach row data [
 				foreach col unused [
 					remove at row col
-				]
-			]
-		]
-		also data all [settings/console settings/exited]
-	]
-
-	discard-last: function [
-		"Remove empty trailing column(s)."
-		data [block!]
-	] [
-		all [settings/console settings/called 'discard-last]
-		unless empty? data [
-			discard?: true
-			while [all [data/1/1 discard?]] [
-				foreach row data [
-					unless empty? form last row [
-						discard?: false
-						break
-					]
-				]
-				if discard? [
-					foreach row data [
-						take/last row
-					]
 				]
 			]
 		]
@@ -450,10 +441,10 @@ ctx-munge: context [
 		]
 		;	["<c " | "<x:c "]
 		parse excel-first-row sheet [any [thru [#{3C6320} | #{3C783A6320}] (++ cells)]]
-		;	[{<dimension ref="} | {<x:dimension ref="}] thru ":"
+		;	[{<dimension ref="} | {<x:dimension ref="}] to {"} then A1:B1 or A1
 		all [
-			s: parse sheet [thru [#{3C64696D656E73696F6E207265663D22} | #{3C783A64696D656E73696F6E207265663D22}] thru #{3A} return to digit]
-			dimx: to-column-number to string! s
+			s: parse sheet [thru [#{3C64696D656E73696F6E207265663D22} | #{3C783A64696D656E73696F6E207265663D22}] return to #{22}]
+			dimx: to-column-number to string! parse any [find/tail s #{3A} s] [return to digit]
 		]
 		max-of reduce [cols cells dimx]
 	]
@@ -468,7 +459,7 @@ ctx-munge: context [
 		cols: excel-cols? sheet
 		rows: excel-rows? sheet
 		i: 1
-		until compose [
+		until [
 			append/dup row: make block! cols copy "" cols
 			either i <= rows [
 				col: 1
@@ -478,9 +469,11 @@ ctx-munge: context [
 							if any [
 								find cell "<v>"
 								find cell "<x:v>"
+								find cell "<t>"
+								find cell {<t xml:space="preserve">}
 							] [
 								x: either find cell "r=" [to-column-number parse cell [thru { r="} return to digit]] [col]
-								v: parse cell [thru ["<v>"|"<x:v>"] return to ["</v>"|"</x:v>"]]
+								v: parse cell [thru ["<v>"|"<x:v>"|"<t>"|{<t xml:space="preserve">}] return to ["</v>"|"</x:v>"|"</t>"]]
 								poke row x either find cell {t="s"} [copy pick strings 1 + to integer! v] [v]
 							]
 							++ col
@@ -489,7 +482,7 @@ ctx-munge: context [
 				]
 				(min settings/threshold cols) <= length? remove-each s copy row [empty? s]
 			] [
-				true
+				copy []
 			]
 		]
 
@@ -500,7 +493,7 @@ ctx-munge: context [
 		"First binary row of a sheet."
 		sheet [binary!]
 	] compose/deep [
-		parse sheet [to [(to binary! "<row ")|(to binary! "<x:row ")] return thru [(to binary! "</row>")|(to binary! "</x:row>")]]
+		parse sheet [to [(to binary! "<row ")|(to binary! "<x:row ")|(to binary! "<row>")] return thru [(to binary! "</row>")|(to binary! "</x:row>")|]]
 	]
 
 	excel-info: function [
@@ -524,7 +517,7 @@ ctx-munge: context [
 		"Last binary row of a sheet."
 		sheet [binary!]
 	] compose/deep [
-		excel-first-row any [find/last sheet (to binary! "<row ") find/last sheet (to binary! "<x:row ")]
+		excel-first-row any [find/last sheet (to binary! "<row ") find/last sheet (to binary! "<x:row ") find/last sheet (to binary! "<row>")]
 	]
 
 	excel-load-sheet: function [
@@ -567,7 +560,7 @@ ctx-munge: context [
 			any [
 				thru tag
 				thru ">" copy s to "<" (
-					append strings html-decode trim s
+					append strings html-decode s
 				)
 			]
 		]
@@ -586,14 +579,39 @@ ctx-munge: context [
 		sheet [binary!]
 		index [integer!]
 	] [
-		parse sheet compose/deep [to [(to binary! ajoin [{<row r="} index {"}])|(to binary! ajoin [{<x:row r="} index {"}])] return thru [(to binary! "</row>")|(to binary! "</x:row>")]]
+		either excel-row-numbers? sheet [
+			any [
+				parse sheet compose/deep [to [(to binary! ajoin [{<row r="} index {"}])|(to binary! ajoin [{<x:row r="} index {"}])] return thru [(to binary! "</row>")|(to binary! "</x:row>")]]
+				copy #{}
+			]
+		] [
+			pos: sheet
+			loop index compose [
+				pos: find next pos (to binary! "<row>")
+			]
+			any [
+				parse pos compose [to (to binary! "<row>") return thru (to binary! "</row>")]
+				copy #{}
+			]
+		]
+	]
+
+	excel-row-numbers?: function [
+		"Row number present in row tag."
+		sheet [binary!]
+	] compose [
+		binary? find/any copy/part find sheet (to binary! "sheetData>") 1024 (to binary! "<*row r=")
 	]
 
 	excel-rows?: function [
 		"Number of rows in sheet."
 		sheet [binary!]
 	] compose/deep [
-		to integer! to string! parse excel-last-row sheet [thru (to binary! {r="}) return to (to binary! {"})]
+		to integer! to string! either excel-row-numbers? sheet [
+			parse excel-last-row sheet [thru (to binary! {r="}) return to (to binary! {"})]
+		] [
+			parse sheet [thru (to binary! {<dimension ref="}) thru (to binary! ":") to digit return to (to binary! {"})]
+		]
 	]
 
 	excel?: function [
@@ -638,9 +656,12 @@ ctx-munge: context [
 				excel-fields? excel-load-sheet data any [number 1] excel-load-strings data
 			]
 		] [
-			delimiter: any [delimiter delimiter? data]
+			data: either string? data [copy/part data 4096] [read-string read/part data 4096]
+			unless with [
+				set [delimiter data] delimiter? data
+			]
 			cols: cols?/with data delimiter
-			foreach line split-lines either string? data [data] [read-string read/part data 4096] [
+			foreach line split-lines data [
 				row: either find line {"} [
 					load-dsv/flat/ignore/with/csv line delimiter
 				] [
@@ -666,37 +687,6 @@ ctx-munge: context [
 		]
 	]
 
-	first-line: function [
-		"Returns the first non-empty line of a file."
-		data [file! url! string! binary!]
-	] [
-		data: split-lines either string? data [
-			copy/part data 4096
-		] [
-			read-string either binary? data [copy/part data 4096] [read/binary/part data 4096]
-		]
-
-		foreach line data [
-			any [find ["" "^L"] line return line]
-		]
-
-		copy ""
-	]
-
-	first-value: function [
-		"Returns the first non-empty value of a block."
-		blk [block!]
-	] [
-		foreach value unique blk [
-			case [
-				none? value		[]
-				string? value	[all [not empty? value return value]]
-				true			[return value]
-			]
-		]
-		none
-	]
-
 	flatten: function [
 		"Flatten nested block(s)."
 		data [block!]
@@ -713,7 +703,7 @@ ctx-munge: context [
 	html-decode: function [
 		"Decode HTML Entities."
 		string [string!]
-	] [
+	] compose/deep [
 		all [
 			find string "&"
 			foreach [code char] [
@@ -725,9 +715,14 @@ ctx-munge: context [
 				{&NewLine;}	{^/}
 				{&Tab;}		{^-}
 				{&nbsp;}	{ }
+				{&#xa0;}	{ }
 			] [replace/all string code char]
 		]
-		string
+		all [
+			find string (to string! #{E28093})
+			replace/all string (to string! #{E28093}) "-"
+		]
+		trim string
 	]
 
 	html-encode: function [
@@ -747,21 +742,6 @@ ctx-munge: context [
 			] [replace/all string char code]
 		]
 		string
-	]
-
-	last-line: function [
-		"Returns the last non-empty line of a file."
-		data [file! url! string!]
-	] [
-		data: reverse split-lines either string? data [skip data -4096 + length? data] [
-			read-string read/binary/seek data max 0 -4096 + size? data
-		]
-
-		foreach line data [
-			any [find ["" "^L"] line return line]
-		]
-
-		copy ""
 	]
 
 	letter: make bitset! [#"A" - #"Z" #"a" - #"z"]
@@ -820,7 +800,7 @@ ctx-munge: context [
 
 		recycle
 
-		any [with delimiter: delimiter? source]
+		any [with delimiter: first delimiter? source]
 
 		value: either any [delimiter = #"," csv] [
 			[
@@ -853,18 +833,18 @@ ctx-munge: context [
 		line: 0
 
 		append last last rule compose/deep [
-			line: line + 1
+			++ line
 			(either settings/as-is [] [[foreach val row [trim/lines val]]])
 			(either settings/denull [[foreach val row [all [find/case ["NULL" "null"] val clear val]]]] [])
 			all [
-				row <> [""]
+				(min settings/threshold cols) <= length? row
 				(either where [condition] [])
 				(either ignore [] [compose/deep [any [(cols) = len: length? row settings/error reform ["Expected" (cols) "values but found" len "on line" line]]]])
 				(either part [
 					part: copy/deep [reduce []]
 					foreach col columns: to block! columns [
 						append part/2 either integer? col [
-							all [not ignore any [col < 1 col > cols] settings/error reform ["Invalid /part position:" col]]
+							all [not ignore any [col < 1 col > cols] settings/error reform ["Invalid /part position:" col "of" cols]]
 							compose [(append to path! 'row col)]
 						] [col]
 					]
@@ -882,48 +862,6 @@ ctx-munge: context [
 		list blk
 	]
 
-	load-fixed: function [
-		"Loads fixed-width values from a file."
-		file [file! url!]
-		widths [block!]
-		/part
-			columns [integer! block!]
-	] [
-		all [settings/console settings/called 'load-fixed]
-
-		spec: copy []
-		pos: 1
-
-		either part [
-			part: copy []
-			foreach width widths [
-				append/only part reduce [pos width]
-				pos: pos + width
-			]
-			foreach col to block! columns [
-				append spec compose [trim/lines copy/part at line (part/:col/1) (part/:col/2)]
-			]
-		] [
-			foreach width widths [
-				append spec compose [trim/lines copy/part at line (pos) (width)]
-				pos: pos + width
-			]
-		]
-
-		blk: copy []
-
-		foreach line read/lines file compose/deep [
-			any [
-				empty? trim copy line
-				append/only blk reduce [(spec)]
-			]
-		]
-
-		recycle
-
-		list blk
-	]
-
 	load-xml: function [
 		"Loads an Office XML sheet."
 		file [file!]
@@ -934,7 +872,7 @@ ctx-munge: context [
 		/flat "Flatten rows"
 		/sheet number [integer!]
 		/local cell
-	] compose [
+	] [
 		all [settings/console settings/called 'load-xml]
 
 		any [
@@ -960,6 +898,7 @@ ctx-munge: context [
 		sheet: trim/lines trim/with read-string parse sheet [to [#{3C726F77} | #{3C783A726F77}] return to [#{3C2F7368656574446174613E} | #{3C2F783A7368656574446174613E}]] newline
 
 		;	<c r="A1" s="1" t="s"><v>0</v></c>
+		;	<c r="A1" s="1" t="inlineStr"><is><t>0</t></is></c>
 		;	<c s="1" t="s"><v>0</v></c>
 		;	<c r="A1" s="1"></c>
 		;	<x:c r="A1" s="1" t="s"><x:v>0</x:v></x:c>
@@ -971,10 +910,14 @@ ctx-munge: context [
 				any [
 					opt ["<row" (col: 1 append/dup row: make block! cols copy "" cols)]
 					to "<c" copy cell thru ["</c>" | "/>"] (
-						if find cell "<v>" [
-							x: either find cell "r=" [to-column-number parse cell [thru { r="} return to digit]] [col]
-							v: parse cell [thru "<v>" return to "</v>"]
-							poke row x either find cell {t="s"} [copy pick strings 1 + to integer! v] [trim v]
+						if any [
+							find cell "<v>"
+							find cell "<t>"
+							find cell {<t xml:space="preserve">}
+						] [
+							all [find cell "r=" col: to-column-number parse cell [thru { r="} return to digit]]
+							v: parse cell [thru ["<v>"|"<t>"|{<t xml:space="preserve">}] return to ["</v>"|"</t>"]]
+							poke row col either find cell {t="s"} [copy pick strings 1 + to integer! v] [html-decode v]
 						]
 						++ col
 					)
@@ -987,9 +930,9 @@ ctx-munge: context [
 					opt ["<x:row" (col: 1 append/dup row: make block! cols copy "" cols)]
 					to "<x:c" copy cell thru ["</x:c>" | "/>"] (
 						if find cell "<x:v>" [
-							x: either find cell "r=" [to-column-number parse cell [thru { r="} return to digit]] [col]
+							all [find cell "r=" col: to-column-number parse cell [thru { r="} return to digit]]
 							v: parse cell [thru "<x:v>" return to "</x:v>"]
-							poke row x either find cell {t="s"} [copy pick strings 1 + to integer! v] [trim v]
+							poke row col either find cell {t="s"} [copy pick strings 1 + to integer! v] [html-decode v]
 						]
 						++ col
 					)
@@ -1020,11 +963,6 @@ ctx-munge: context [
 
 		parse sheet bind rule 'row
 
-		any [
-			flat
-			discard-last blk
-		]
-
 		recycle
 
 		list blk
@@ -1036,7 +974,7 @@ ctx-munge: context [
 	] [
 		all [empty? series return none]
 		val: series/1
-		foreach v series [val: max val v]
+		foreach v unique series [val: max val v]
 		val
 	]
 
@@ -1091,7 +1029,7 @@ ctx-munge: context [
 	] [
 		all [empty? series return none]
 		val: series/1
-		foreach v series [val: min val v]
+		foreach v unique series [val: min val v]
 		val
 	]
 
@@ -1307,6 +1245,8 @@ ctx-munge: context [
 			replace statement reform ["FROM" sheet] ajoin ["FROM ['+$o.GetSchema('Tables').rows[" -1 + to integer! skip sheet 5 "].TABLE_NAME+']"]
 			{;Extended Properties=''Excel 12.0 Xml;HDR=NO;IMEX=1;Mode=Read''}
 		]
+		old-threshold: settings/threshold
+		settings/threshold: 1
 		blk: remove load-dsv/csv/with call-out ajoin [
 			{powershell -nologo -noprofile -command "}
 				{$o=New-Object System.Data.OleDb.OleDbConnection('Provider=Microsoft.ACE.OLEDB.12.0;}
@@ -1319,6 +1259,7 @@ ctx-munge: context [
 				{$t|ConvertTo-CSV -Delimiter `t -NoTypeInformation}
 			{"}
 		] tab
+		settings/threshold: old-threshold
 		also either all [
 			1 = length? blk
 			[""] = unique first blk
@@ -1428,7 +1369,7 @@ ctx-munge: context [
 
 	sqlcmd: function [
 		"Execute a SQL Server statement."
-		server [string!]
+		server [string!] "Username/Password if localhost"
 		database [string!]
 		statement [string!]
 		/key "Columns to convert to integer"
@@ -1437,16 +1378,22 @@ ctx-munge: context [
 		/string "Return string instead of block"
 		/flat "Flatten rows"
 		/identity
-	] either system/platform = 'Windows [[
+	] [
 		all [settings/console settings/called 'sqlcmd]
 
 		all [identity statement: rejoin [statement ";SELECT SCOPE_IDENTITY()"]]
 
+		authentication: either find server slash [
+			reform ["-U" parse server [return to slash] "-P" next find server slash "-d" database]
+		] [
+			reform ["-S" server "-d" database]
+		]
+
 		stdout: either 32000 > length? statement [
-			call-out reform compose ["sqlcmd -m 1 -X -S" server "-d" database "-I -Q" ajoin [{"} statement {"}] {-W -w 65535 -s"^-"} (either headings [] [{-h -1}])]
+			call-out reform compose ["sqlcmd -m 1 -X" authentication "-I -Q" ajoin [{"} statement {"}] {-W -w 65535 -s"^-"} (either headings [] [{-h -1}])]
 		] [
 			write file: to file! append replace datetime space #"_" %.sql statement
-			also call-out reform compose ["sqlcmd -m 1 -X -S" server "-d" database "-I -i" file {-W -w 65535 -s"^-"} (either headings [] [{-h -1}])] attempt [delete file]
+			also call-out reform compose ["sqlcmd -m 1 -X" authentication "-I -i" file {-W -w 65535 -s"^-"} (either headings [] [{-h -1}])] attempt [delete file]
 		]
 
 		all [empty? stdout return either string [make string! 0] [make block! 0]]
@@ -1469,6 +1416,9 @@ ctx-munge: context [
 			]
 			true [
 				stdout: copy/part stdout find stdout "^/^/("
+
+				old-threshold: settings/threshold
+				settings/threshold: 1
 
 				either flat [
 					cols: cols?/with stdout tab
@@ -1503,19 +1453,11 @@ ctx-munge: context [
 					]
 				]
 
+				settings/threshold: old-threshold
+
 				also stdout all [settings/console settings/exited]
 			]
 		]
-	]] [[
-		settings/error "Windows only"
-	]]
-
-	sqlite: function [
-		"Execute a SQLite statement."
-		database [file! url!]
-		statement [string!]
-	] [
-		load-dsv/with call-out ajoin [{sqlite3 -separator "^-" } to-local-file database { "} statement {"}] tab
 	]
 
 	to-column-alpha: function [
@@ -1671,6 +1613,46 @@ ctx-munge: context [
 		insert clear data blk
 		blk: none
 		recycle
+		also data all [settings/console settings/exited]
+	]
+
+	trim-rows: function [
+		"Remove empty trailing column(s) and leading column(s)."
+		data [block!]
+	] [
+		all [settings/console settings/called 'trim-rows]
+		unless empty? data [
+			;	trailing columns
+			discard?: true
+			while [all [data/1/1 discard?]] [
+				foreach row data [
+					unless "" = last row [
+						discard?: false
+						break
+					]
+				]
+				if discard? [
+					foreach row data [
+						take/last row
+					]
+				]
+			]
+			;	leading columns
+			discard?: true
+			while [all [data/1/1 discard?]] [
+				foreach row data [
+					unless "" = first row [
+						discard?: false
+						break
+					]
+				]
+				if discard? [
+					foreach row data [
+						remove row
+					]
+				]
+			]
+		]
 		also data all [settings/console settings/exited]
 	]
 
