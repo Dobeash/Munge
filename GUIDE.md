@@ -164,13 +164,24 @@ This only works on Windows and requires the [Microsoft Access Database Engine 20
     >> sqlcmd sn db "SELECT * FROM TABLE"
     >> sqlcmd/headings sn db "SELECT * FROM TABLE"
 
-This will only work on Windows and requires the SQLCMD utility to be installed.
+This requires the SQLCMD utility to be installed.
 
-## SQLite
+### Installing SQL Server on macOS
 
-    >> sqlite %file.db "SELECT * FROM TABLE"
+To install SQL Server (and SQLCMD) on non-Windows systems you will need to download and install the following:
 
-This requires [sqlite](http://sqlite.org/download.html) to be in the same folder as `munge.r`.
+1. [Docker](https://www.docker.com)
+3. [Azure SQL Edge](https://hub.docker.com/r/microsoft/azure-sql-edge)
+2. [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=win-install%2Cwin-user-install%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
+4. [go-sqlcmd](https://github.com/microsoft/go-sqlcmd)
+
+You will then need to inclue SQLCMD in your path. If it's located in the same folder as `munge.r` you can do this with:
+
+    >> set-env "PATH" ajoin [get-env "PATH" ":" to-local-file pwd]
+    
+Also note that the `server` argument will need to be `sa/password`.
+
+    >> sqlcmd "sa/password" "master" "SELECT * FROM sys.databases"
 
 # Munging blocks
 
