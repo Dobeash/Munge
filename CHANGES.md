@@ -1,3 +1,33 @@
+# 3.1.4 - August 2025
+
+## Removed
+
+- discard-last
+- first-line
+- last-line
+- load-fixed
+- first-value
+- sqlite
+
+## Added
+
+- trim-rows
+- excel-row-numbers?
+
+## Updated
+
+- excel-cols?
+- load-xml
+- html-decode
+- excel-pick-row
+- excel-fields?
+- settings/theshold now used by cols?, delimiter?, excel-fields?, fields?, load-dsv
+- sqlcmd
+
+## Optimized
+- max-of
+- min-of
+
 # 3.1.3 - February 2025
 
 ## Removed
