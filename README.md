@@ -6,6 +6,9 @@ Munge is a collection of data manipulation functions designed to work with the f
 
 - [Oldes/Rebol3](https://github.com/Oldes/Rebol3)
 
+> [!CAUTION]
+> The munge test suite fails with the latest release (3.20.0). Recommended release is **3.19.0**.
+
 Its functions are wrapped in a single context named `ctx-munge`.
 
 	as-date				Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
