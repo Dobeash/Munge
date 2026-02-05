@@ -1,12 +1,12 @@
 Rebol [
 	Title:		"Munge functions"
 	Owner:		"Ashley G Truter"
-	Version:	3.1.4
-	Date:		15-Aug-2025
+	Version:	3.1.5
+	Date:		9-Jan-2026
 	Purpose:	"Extract and manipulate tabular values in blocks, delimited files, and database tables."
 	Licence:	"MIT. Free for both commercial and non-commercial use."
 	Tested: {
-		Rebol3/Core 3.19.0	github.com/Oldes/Rebol3
+		Rebol3/Core 3.21.0	github.com/Oldes/Rebol3
 	}
 	Usage: {
 		as-date				Convert a string date to a YYYY-MM-DD string (does not handle Excel or YYYYDDMM).
@@ -180,7 +180,7 @@ ctx-munge: context [
 		all [settings/console settings/called 'call-out]
 		(either system/platform = 'Windows [[call/wait/output/error]] [[call/wait/shell/output/error]]) cmd stdout: make string! 65536 stderr: make string! 1024
 		any [empty? stderr settings/error trim/lines stderr]
-		also deline stdout all [settings/console settings/exited]
+		also deline read-string to binary! stdout all [settings/console settings/exited]
 	]
 
 	check: function [
@@ -493,7 +493,7 @@ ctx-munge: context [
 		"First binary row of a sheet."
 		sheet [binary!]
 	] compose/deep [
-		parse sheet [to [(to binary! "<row ")|(to binary! "<x:row ")|(to binary! "<row>")] return thru [(to binary! "</row>")|(to binary! "</x:row>")|]]
+		parse sheet [to [(to binary! "<row ")|(to binary! "<x:row ")|(to binary! "<row>")] return thru [(to binary! "</row>")|(to binary! "</x:row>")|(to binary! "/>")]]
 	]
 
 	excel-info: function [
@@ -1285,7 +1285,7 @@ ctx-munge: context [
 	] [
 		all [settings/console settings/called 'read-string]
 		any [binary? source source: read/binary source]
-		trim/with source null
+		trim source
 		;	replace char 160 with space
 		mark: source
 		while [mark: find mark #{C2A0}] [
@@ -1679,27 +1679,28 @@ ctx-munge: context [
 		"Write block(s) of values to a delimited text file."
 		file [file! url!] "csv or tab-delimited text file"
 		data [block!]
+		/with
+			delimiter [char!]
+		/quoted "Only if delimiter specified"
 		/utf8
-	] compose/deep [
+	] [
 		all [settings/console settings/called 'write-dsv]
 		p: open/new/write file
 		all [utf8 append p #{EFBBBF}]
-		either %.csv = suffix? file [
+		do compose/deep [
 			foreach row copy/deep data [
-				replace/all row none copy ""
-				foreach value row [
-					all [
-						series? value
-						find trim/with value #"^"" (make bitset! ",^/")
-						append insert value #"^"" #"^""
+				(either all [not delimiter %.csv = suffix? file] [[
+					foreach value row [
+						all [
+							series? value
+							find trim/with value #"^"" (make bitset! ",^/")
+							append insert value #"^"" #"^""
+						]
 					]
-				]
-				append p append ajoin/with row (comma) (lf)
-			]
-		] [
-			foreach row data [
+				]] [])
 				replace/all row none copy ""
-				append p append ajoin/with row (tab) (lf)
+				(either quoted [[foreach value row [append insert value #"^"" #"^""]]][])
+				append p append ajoin/with row (any [delimiter either %.csv = suffix? file [comma] [tab]]) (lf)
 			]
 		]
 		also close p all [settings/console settings/exited]
