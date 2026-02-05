@@ -1,13 +1,10 @@
-# Munge v3.1.4
+# Munge v3.1.5
 
-> Updated 15-Aug-2025
+> Updated 9-Jan-2026
 
 Munge is a collection of data manipulation functions designed to work with the following Rebol distribution:
 
 - [Oldes/Rebol3](https://github.com/Oldes/Rebol3)
-
-> [!CAUTION]
-> The munge test suite fails with the latest release (3.20.0). Recommended release is **3.19.0**.
 
 Its functions are wrapped in a single context named `ctx-munge`.
 
