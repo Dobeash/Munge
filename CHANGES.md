@@ -1,3 +1,10 @@
+# 3.1.5 - January 2026
+
+## Updated
+
+- read-string to work with 3.20.0+
+- excel-first-row to work with alternate tag ending
+
 # 3.1.4 - August 2025
 
 ## Removed
