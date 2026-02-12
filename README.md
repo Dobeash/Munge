@@ -1,6 +1,6 @@
-# Munge v3.1.5
+# Munge v3.1.6
 
-> Updated 9-Jan-2026
+> Updated 10-Feb-2026
 
 Munge is a collection of data manipulation functions designed to work with the following Rebol distribution:
 
