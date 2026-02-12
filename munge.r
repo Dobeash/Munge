@@ -1,8 +1,8 @@
 Rebol [
 	Title:		"Munge functions"
 	Owner:		"Ashley G Truter"
-	Version:	3.1.5
-	Date:		9-Jan-2026
+	Version:	3.1.6
+	Date:		10-Feb-2026
 	Purpose:	"Extract and manipulate tabular values in blocks, delimited files, and database tables."
 	Licence:	"MIT. Free for both commercial and non-commercial use."
 	Tested: {
@@ -230,9 +230,7 @@ ctx-munge: context [
 			]
 		] [
 			data: either string? data [copy/part data 4096] [read/string/part data 4096]
-			unless with [
-				set [delimiter data] delimiter? data
-			]
+			any [with delimiter: first delimiter? data]
 			cols: 0
 			foreach line split-lines data [
 				cols: length? either find line {"} [
@@ -657,9 +655,7 @@ ctx-munge: context [
 			]
 		] [
 			data: either string? data [copy/part data 4096] [read-string read/part data 4096]
-			unless with [
-				set [delimiter data] delimiter? data
-			]
+			any [with delimiter: first delimiter? data]
 			cols: cols?/with data delimiter
 			foreach line split-lines data [
 				row: either find line {"} [
