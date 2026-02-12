@@ -1,3 +1,9 @@
+# 3.1.6 - February 2026
+
+## Updated
+
+- cols? and fields? now work correctly with settings/threshold
+
 # 3.1.5 - January 2026
 
 ## Updated
